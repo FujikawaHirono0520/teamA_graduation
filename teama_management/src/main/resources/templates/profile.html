@@ -12,12 +12,12 @@
 <div class="profile-page">
 
     <!-- ヘッダー -->
-    <header class="app-header profile-header">
-        <span class="profile-header-title">課題管理システム</span>
+    <div class="profile-header-wrapper">
+        <div th:replace="~{fragments/header :: header}"></div>
         <p class="profile-header-userid">
             ユーザーID：<span th:text="${uid}"></span>
         </p>
-    </header>
+    </div>
 
     <main class="container profile-container">
 
@@ -116,6 +116,8 @@
         </div>
 
     </main>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
 </div>
 
