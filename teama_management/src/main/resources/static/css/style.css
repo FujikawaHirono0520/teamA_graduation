@@ -1,12 +1,92 @@
-body { margin: 0; font-family: sans-serif; background: #fff; }
-.app-header { background: #009900; color: #fff; text-align: center; font-weight: bold; padding: 14px; }
-.container { max-width: 480px; margin: 0 auto; padding: 16px; }
-h1 { font-size: 1.2rem; }
-label { display: block; margin-top: 14px; font-size: 0.9rem; }
-input[type=text], input[type=password] {
-  width: 100%; box-sizing: border-box; padding: 10px; margin-top: 4px;
-  border: 1px solid #aaa; border-radius: 4px; font-size: 1rem;
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #fff;
+  }
+  
+/* ヘッダー */
+.app-header {
+  background: #009900;
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
+  padding: 14px;
+  }
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
 }
-.error { color: #cc0000; font-size: 0.9rem; }
-.btn { width: 100%; padding: 12px; margin-top: 16px; border: none; border-radius: 6px; color: #fff; font-size: 1rem; font-weight: bold; }
-.btn-green { background: #009900; }
+
+/* 画面タイトルと←を横並びにするためのコンテナ */
+.page-title-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 戻るボタン */
+.back-link {
+    color: #333;
+    font-size: 28px;
+    text-decoration: none;
+    line-height: 1;
+}
+
+/* 戻るボタンにマウスを乗せたとき */
+.back-link:hover {
+    opacity: 0.6;
+}
+
+/* タイトル */
+.page-title h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+h1 {
+  font-size: 1.2rem;
+  }
+label {
+  display: block;
+  margin-top: 14px;
+  font-size: 0.9rem;
+  }
+input[type=text], input[type=password] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  margin-top: 4px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  font-size: 1rem;
+  }
+.error {
+  color: #cc0000;
+  font-size: 0.9rem;
+  }
+.btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 16px;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  }
+.btn-green {
+  background: #009900;
+  }
+.btn-water-blue {
+  background: hwb(202 10% 1%);
+  }
+/* フッター */
+.app-footer {
+    width: 100%;
+    padding: 15px;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    box-sizing: border-box;
+  }
