@@ -90,3 +90,238 @@ input[type=text], input[type=password] {
     text-align: center;
     box-sizing: border-box;
   }
+
+/* ===== プロフィール画面 ===== */
+
+/* ユーザー情報カード */
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    margin-bottom: 14px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    min-height: 72px;
+    box-sizing: border-box;
+}
+
+/* プロフィールアイコン */
+.profile-icon {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #3399ff;
+    border-radius: 50%;
+    background: #e3f2fd;
+    color: #4488cc;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* ユーザー情報 */
+.profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-name {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.profile-id {
+    margin: 0;
+    color: #555;
+    font-size: 0.8rem;
+}
+
+/* 編集ボタン */
+.profile-edit-btn {
+    align-self: flex-start;
+    padding: 7px 18px;
+    border: 1px solid #3399ff;
+    border-radius: 7px;
+    background: #fff;
+    color: #3399ff;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* セクション見出し */
+.profile-section-title {
+    margin: 14px 0 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+/* メニュー一覧 */
+.profile-menu {
+    border: 1px solid #ddd;
+    margin-bottom: 28px;
+}
+
+.profile-menu-item {
+    min-height: 50px;
+    padding: 0 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    border-bottom: 1px solid #ddd;
+    color: #000;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.profile-menu-item:last-child {
+    border-bottom: none;
+}
+
+/* 右側の矢印 */
+.profile-menu-arrow {
+    color: #888;
+    font-size: 1.2rem;
+}
+
+/* チームの役割 */
+.profile-role {
+    min-width: 82px;
+    padding: 4px 10px;
+    border-radius: 18px;
+    color: #fff;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+
+.profile-role-user {
+    background: #4b91dc;
+}
+
+.profile-role-leader {
+    background: #ed7b19;
+}
+
+/* ログアウトボタン */
+.profile-logout {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #f00000;
+    border-radius: 11px;
+    background: #fff;
+    color: #f00000;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+/* 編集画面の確定ボタン */
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    margin-top: 16px;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+/* ===== プロフィール画面のサイズ調整 ===== */
+
+/* 画面全体 */
+.profile-page {
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* 設定画面のヘッダー */
+.profile-header {
+    position: relative;
+    width: 100%;
+    min-height: 66px;
+    padding: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.profile-header-title {
+    font-size: 1rem;
+}
+
+.profile-header-userid {
+    position: absolute;
+    right: 6px;
+    bottom: 2px;
+    margin: 0;
+    font-size: 0.75rem;
+}
+
+/* 設定画面の内容 */
+.profile-container {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.profile-container h1 {
+    margin: 0 0 14px;
+    font-size: 1.1rem;
+}
+
+/* ユーザー情報カード */
+.profile-card {
+    width: 100%;
+}
+
+
+/* ユーザー名編集時の入力欄 */
+.profile-info input[type=text] {
+    width: 100%;
+    max-width: 150px;
+    padding: 10px;
+    margin: 0 0 8px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+/* 編集・確定ボタン */
+.profile-edit-btn {
+    align-self: flex-start;
+    min-width: 65px;
+    padding: 7px 16px;
+    border: 1px solid #3399ff;
+    border-radius: 7px;
+    background: #fff;
+    color: #3399ff;
+    font-size: 0.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}

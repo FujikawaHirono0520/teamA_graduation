@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>設定 - 課題管理システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="profile-page">
+
+    <!-- ヘッダー -->
+    <header class="app-header profile-header">
+        <span class="profile-header-title">課題管理システム</span>
+        <p class="profile-header-userid">
+            ユーザーID：<span th:text="${uid}"></span>
+        </p>
+    </header>
+
+    <main class="container profile-container">
+
+        <h1>設定</h1>
+
+        <!-- ユーザー情報 -->
+        <form class="profile-card"
+              th:action="@{/profile/edit}"
+              method="post">
+
+            <div class="profile-icon">人</div>
+
+            <div class="profile-info">
+
+                <!-- 通常時のユーザー名 -->
+                <p class="profile-name"
+                   id="usernameDisplay"
+                   th:text="${username}"
+                   th:style="${editMode} ? 'display:none' : ''">
+                </p>
+
+                <!-- 編集時の入力欄 -->
+                <input type="text"
+                       id="usernameInput"
+                       name="username"
+                       th:value="${usernameInput != null ? usernameInput : username}"
+                       th:style="${editMode} ? '' : 'display:none'">
+
+                <!-- ユーザーID -->
+                <p class="profile-id">
+                    ユーザーID：<span th:text="${uid}"></span>
+                </p>
+
+                <!-- エラーメッセージ -->
+                <p class="error"
+                   th:if="${errorMessage}"
+                   th:text="'※' + ${errorMessage}">
+                </p>
+
+            </div>
+
+            <!-- 編集ボタン -->
+            <button type="button"
+                    class="profile-edit-btn"
+                    id="editButton"
+                    th:style="${editMode} ? 'display:none' : ''"
+                    onclick="showUsernameEdit()">
+                編集
+            </button>
+
+            <!-- 確定ボタン -->
+            <button type="submit"
+                    class="profile-edit-btn"
+                    id="saveButton"
+                    th:style="${editMode} ? '' : 'display:none'">
+                確定
+            </button>
+
+        </form>
+
+        <!-- アカウント -->
+        <h2 class="profile-section-title">アカウント</h2>
+
+        <div class="profile-menu">
+            <div class="profile-menu-item">
+                <span>パスワード変更</span>
+                <span class="profile-menu-arrow">＞</span>
+            </div>
+        </div>
+
+        <!-- 所属チーム -->
+        <h2 class="profile-section-title">所属チーム</h2>
+
+        <div class="profile-menu">
+
+            <div class="profile-menu-item">
+                <span>所属チーム一覧</span>
+                <span class="profile-menu-arrow">＞</span>
+            </div>
+
+            <div class="profile-menu-item">
+                <span>＋ チームを作成</span>
+                <span class="profile-menu-arrow">＞</span>
+            </div>
+
+            <div class="profile-menu-item">
+                <span>招待コードでチームに参加</span>
+                <span class="profile-menu-arrow">＞</span>
+            </div>
+
+        </div>
+
+        <!-- ログアウト -->
+        <div class="profile-logout">
+            ログアウト
+        </div>
+
+    </main>
+
+</div>
+
+<!-- ユーザー名編集処理 -->
+<script>
+    function showUsernameEdit() {
+
+        // ユーザー名の表示を隠す
+        document.getElementById("usernameDisplay").style.display = "none";
+
+        // 入力欄を表示する
+        document.getElementById("usernameInput").style.display = "block";
+
+        // 編集ボタンを隠す
+        document.getElementById("editButton").style.display = "none";
+
+        // 確定ボタンを表示する
+        document.getElementById("saveButton").style.display = "inline-block";
+
+        // 入力欄にカーソルを合わせる
+        document.getElementById("usernameInput").focus();
+    }
+</script>
+
+</body>
+</html>
