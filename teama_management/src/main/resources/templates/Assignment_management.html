@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>課題登録</title>
+
+    <style>
+        body {
+            font-family: "Yu Gothic", sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* ヘッダー */
+        .app-header {
+            background: #009900;
+            color: #fff;
+            text-align: center;
+            font-weight: bold;
+            padding: 14px 20px 24px;
+            font-size: 20px;
+            position: relative;
+        }
+
+        .header-user-id {
+            position: absolute;
+            right: 16px;
+            bottom: 6px;
+            font-size: 13px;
+            font-weight: normal;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* タイトルと戻るボタン・リーダーバッジ */
+        .page-title-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .page-title-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-link {
+            color: #333;
+            font-size: 26px;
+            text-decoration: none;
+            line-height: 1;
+        }
+
+        .back-link:hover {
+            opacity: 0.6;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .role-badge {
+            background-color: #e67e22;
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 6px 24px;
+            border-radius: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* 対象（チーム / 個人）トグルボタン */
+        .target-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .target-btn {
+            width: 180px;
+            padding: 10px 0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid #e67e22;
+            background-color: #fff;
+            color: #e67e22;
+            transition: all 0.2s;
+        }
+
+        .target-btn.active {
+            background-color: #e67e22;
+            color: #fff;
+        }
+
+        /* 名前検索・サジェスト（19〜21） */
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-results {
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            background: #fff;
+            max-height: 160px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 20px;
+            font-size: 15px;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background-color: #f0f4f8;
+        }
+
+        /* 選択済みユーザーチップ（22〜23） */
+        .selected-users {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+            min-height: 36px;
+        }
+
+        .user-chip {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e0e0e0;
+            color: #333;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            gap: 12px;
+        }
+
+        .user-chip-id {
+            font-size: 12px;
+            color: #555;
+        }
+
+        .chip-remove-btn {
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 2px;
+            line-height: 1;
+        }
+
+        .chip-remove-btn:hover {
+            color: #000;
+        }
+
+        /* 添付資料エリア */
+        .file-attach-box {
+            margin-top: 8px;
+        }
+
+        /* ボタンエリア */
+        .button-area {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .action-btn {
+            width: 180px;
+            padding: 12px 0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .cancel-btn {
+            background-color: #cc0000;
+        }
+
+        .cancel-btn:hover {
+            background-color: #a80000;
+        }
+
+        .submit-btn {
+            background-color: #009900;
+        }
+
+        .submit-btn:hover {
+            background-color: #007a00;
+        }
+
+        .error {
+            color: #cc0000;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="app-header">
+        課題管理システム
+        <span class="header-user-id">ユーザーID：s12345</span>
+    </header>
+
+    <div class="container">
+
+        <div class="page-title-header">
+            <div class="page-title-left">
+                <a href="javascript:history.back()" class="back-link">←</a>
+                <h1>課題登録</h1>
+            </div>
+            <span class="role-badge">リーダー</span>
+        </div>
+
+        <form id="assignmentForm">
+
+            <!-- 課題名 -->
+            <div class="form-group">
+                <label for="title">課題名</label>
+                <input type="text" id="title" name="title" placeholder="例）第4回レポート課題">
+                <div class="error" id="titleError">課題名を入力してください</div>
+            </div>
+
+            <!-- 対象（チーム / 個人） -->
+            <div class="form-group">
+                <label>対象</label>
+                <input type="hidden" id="targetType" name="targetType" value="individual">
+                <div class="target-toggle">
+                    <button type="button" class="target-btn" data-target="team">チーム</button>
+                    <button type="button" class="target-btn active" data-target="individual">個人</button>
+                </div>
+            </div>
+
+            <!-- 19〜23: 名前検索＆選択済みユーザー -->
+            <div class="form-group" id="userSearchSection">
+                <label for="userSearchInput">名前で検索（複数選択可）</label>
+                <div class="search-wrapper">
+                    <input type="text" id="userSearchInput" placeholder="名前またはユーザーIDを入力" autocomplete="off">
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+
+                <!-- 選択済みユーザーチップ一覧 -->
+                <div class="selected-users" id="selectedUsersContainer"></div>
+                <div class="error" id="userError">対象ユーザーを1名以上選択してください</div>
+            </div>
+
+            <!-- 締め切り日時 -->
+            <div class="form-group">
+                <label for="deadline">締め切り日時</label>
+                <input type="datetime-local" id="deadline" name="deadline" value="2026-11-01T23:59">
+                <div class="error" id="deadlineError">締め切り日時を設定してください</div>
+            </div>
+
+            <!-- 優先順位 -->
+            <div class="form-group">
+                <label for="priority">優先順位</label>
+                <select id="priority" name="priority">
+                    <option value="high">高</option>
+                    <option value="medium" selected>中</option>
+                    <option value="low">低</option>
+                </select>
+            </div>
+
+            <!-- 説明・添付資料 -->
+            <div class="form-group">
+                <label for="description">説明・添付資料</label>
+                <textarea id="description" name="description" placeholder="内容を入力（ファイルを添付）"></textarea>
+                <div class="file-attach-box">
+                    <input type="file" id="file" name="file">
+                </div>
+            </div>
+
+            <!-- ボタンエリア（左：キャンセル / 右：登録） -->
+            <div class="button-area">
+                <button type="button" class="action-btn cancel-btn" onclick="history.back()">
+                    キャンセル
+                </button>
+                <button type="submit" class="action-btn submit-btn">
+                    登録
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <script>
+        // ダミーユーザーデータ（実際はFirestore等から取得）
+        const allUsers = [
+            { id: "s12345", name: "山田 花子" },
+            { id: "s12346", name: "佐藤 健太" },
+            { id: "s12347", name: "田中 太郎" },
+            { id: "s12348", name: "田中 次郎" },
+            { id: "s12349", name: "鈴木 一郎" }
+        ];
+
+        // 初期選択状態（画像のイメージに合わせて山田花子を初期表示）
+        let selectedUsers = [
+            { id: "s12345", name: "山田 花子" }
+        ];
+
+        const searchInput = document.getElementById("userSearchInput");
+        const searchResults = document.getElementById("searchResults");
+        const selectedContainer = document.getElementById("selectedUsersContainer");
+        const targetButtons = document.querySelectorAll(".target-btn");
+        const targetTypeInput = document.getElementById("targetType");
+        const userSearchSection = document.getElementById("userSearchSection");
+
+        // 選択済みチップの再描画
+        function renderSelectedUsers() {
+            selectedContainer.innerHTML = "";
+            selectedUsers.forEach(user => {
+                const chip = document.createElement("div");
+                chip.className = "user-chip";
+                chip.innerHTML = `
+                    <span>${user.name}</span>
+                    <span class="user-chip-id">ID:${user.id}</span>
+                    <button type="button" class="chip-remove-btn" data-id="${user.id}" title="削除">×</button>
+                `;
+                selectedContainer.appendChild(chip);
+            });
+
+            // ×ボタンの削除イベント
+            document.querySelectorAll(".chip-remove-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const removeId = this.getAttribute("data-id");
+                    selectedUsers = selectedUsers.filter(u => u.id !== removeId);
+                    renderSelectedUsers();
+                });
+            });
+        }
+
+        // 検索入力イベント（20〜21）
+        searchInput.addEventListener("input", function () {
+            const keyword = this.value.trim().toLowerCase();
+            searchResults.innerHTML = "";
+
+            if (keyword === "") {
+                searchResults.style.display = "none";
+                return;
+            }
+
+            // 未選択かつキーワードに一致するユーザーを抽出
+            const filtered = allUsers.filter(user => {
+                const isAlreadySelected = selectedUsers.some(s => s.id === user.id);
+                const matches = user.name.toLowerCase().includes(keyword) || user.id.toLowerCase().includes(keyword);
+                return !isAlreadySelected && matches;
+            });
+
+            if (filtered.length > 0) {
+                filtered.forEach(user => {
+                    const item = document.createElement("div");
+                    item.className = "search-result-item";
+                    item.innerHTML = `
+                        <span>${user.name}</span>
+                        <span>ユーザーID：${user.id}</span>
+                    `;
+                    item.addEventListener("click", () => {
+                        selectedUsers.push(user);
+                        renderSelectedUsers();
+                        searchInput.value = "";
+                        searchResults.style.display = "none";
+                    });
+                    searchResults.appendChild(item);
+                });
+                searchResults.style.display = "block";
+            } else {
+                searchResults.innerHTML = `<div class="search-result-item" style="color:#888; cursor:default;">該当するユーザーがいません</div>`;
+                searchResults.style.display = "block";
+            }
+        });
+
+        // 対象（チーム / 個人）切替
+        targetButtons.forEach(btn => {
+            btn.addEventListener("click", function () {
+                targetButtons.forEach(b => b.classList.remove("active"));
+                this.classList.add("active");
+
+                const target = this.getAttribute("data-target");
+                targetTypeInput.value = target;
+
+                // 「個人」の時のみ名前検索エリアを表示
+                if (target === "individual") {
+                    userSearchSection.style.display = "block";
+                } else {
+                    userSearchSection.style.display = "none";
+                }
+            });
+        });
+
+        // 初期描画
+        renderSelectedUsers();
+
+        // バリデーション＆送信処理
+        document.getElementById("assignmentForm").addEventListener("submit", function (event) {
+            let isValid = true;
+
+            document.getElementById("titleError").style.display = "none";
+            document.getElementById("userError").style.display = "none";
+            document.getElementById("deadlineError").style.display = "none";
+
+            const title = document.getElementById("title").value.trim();
+            const deadline = document.getElementById("deadline").value;
+            const targetType = targetTypeInput.value;
+
+            if (title === "") {
+                document.getElementById("titleError").style.display = "block";
+                isValid = false;
+            }
+
+            if (targetType === "individual" && selectedUsers.length === 0) {
+                document.getElementById("userError").style.display = "block";
+                isValid = false;
+            }
+
+            if (deadline === "") {
+                document.getElementById("deadlineError").style.display = "block";
+                isValid = false;
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+                return;
+            }
+
+            alert("課題を登録しました");
+        });
+    </script>
+
+</body>
+
+</html>
