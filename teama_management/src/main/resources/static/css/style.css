@@ -82,6 +82,9 @@ input[type=text], input[type=password] {
 .btn-water-blue {
   background: hwb(202 10% 1%);
   }
+.btn-water-blue:hover {
+    opacity: 0.8;
+  }
 /* フッター */
 .app-footer {
     width: 100%;
