@@ -138,10 +138,36 @@
         </div>
 
         <!-- ログアウト -->
-        <a th:href="@{/logout_confirm_dialog}"
-           class="profile-logout">
+        <button type="button"
+                id="logoutOpenButton"
+                class="profile-logout">
             ログアウト
-        </a>
+        </button>
+
+
+        <!-- ログアウト確認ダイアログ -->
+        <dialog id="logoutDialog" class="logout-dialog">
+
+            <h1>ログアウトしますか？</h1>
+
+            <label>ログアウトすると、ログイン画面に戻ります。</label>
+
+            <div class="logout-dialog-buttons">
+                <!-- キャンセル -->
+                <button type="button"
+                        id="logoutCancelButton"
+                        class="btn logout-cancel-btn">
+                    キャンセル
+                </button>
+                <!-- ログアウト -->
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn logout-confirm-btn">
+                        ログアウト
+                    </button>
+                </form>
+            </div>
+
+        </dialog>
 
     </main>
 
@@ -169,7 +195,21 @@
         // 入力欄にカーソルを合わせる
         document.getElementById("usernameInput").focus();
     }
-</script>
+    // ログアウト確認ダイアログ
+    // ダイアログとボタンを取得
+    const logoutDialog = document.getElementById("logoutDialog");
+    const logoutOpenButton = document.getElementById("logoutOpenButton");
+    const logoutCancelButton = document.getElementById("logoutCancelButton");
 
+    // ログアウトボタンを押したとき
+    logoutOpenButton.addEventListener("click", () => {
+        logoutDialog.showModal();
+    });
+
+    // キャンセルボタンを押したとき
+    logoutCancelButton.addEventListener("click", () => {
+        logoutDialog.close();
+    });
+</script>
 </body>
 </html>
