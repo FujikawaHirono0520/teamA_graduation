@@ -25,7 +25,7 @@
               method="post">
 
             <div class="settings-icon"
-                 th:text="${#strings.isEmpty(username) ? '人' : #strings.substring(username, 0, 1)}">
+                 th:text="${#strings.substring(username, 0, 1)}">
             </div>
 
             <div class="settings-info">
