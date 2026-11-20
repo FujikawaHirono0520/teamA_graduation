@@ -379,14 +379,17 @@ input[type=password] {
     margin: 0;
 }
 
+
 /* ===== 課題登録画面（assignment_create） ===== */
 
 .assignment-create-wrapper {
     max-width: 480px;
     margin: 0 auto;
+
     padding: 16px;
     box-sizing: border-box;
 }
+
 
 .assignment-title-bar {
     display: flex;
