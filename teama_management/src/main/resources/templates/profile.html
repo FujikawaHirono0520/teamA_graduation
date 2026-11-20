@@ -82,10 +82,11 @@
         <h2 class="profile-section-title">アカウント</h2>
 
         <div class="profile-menu">
-            <div class="profile-menu-item">
+            <a th:href="@{/password_change_page}"
+               class="profile-menu-item">
                 <span>パスワード変更</span>
                 <span class="profile-menu-arrow">＞</span>
-            </div>
+            </a>
         </div>
 
         <!-- 所属チーム -->
@@ -93,30 +94,41 @@
 
         <div class="profile-menu">
 
-            <div class="profile-menu-item">
-                <span>所属チーム一覧</span>
+            <!-- 所属チーム一覧 -->
+            <a th:each="team : ${teams}"
+               th:href="@{/team_detail_page/{teamId}(teamId=${team.id})}"
+               class="profile-menu-item">
+                <span th:text="${team.name}"></span>
                 <span class="profile-menu-arrow">＞</span>
-            </div>
+            </a>
 
-            <div class="profile-menu-item">
+            <a th:if="${#lists.isEmpty(teams)}"
+               class="profile-menu-item">
+                <span>所属しているチームはありません</span>
+            </a>
+
+            <a th:href="@{/team_create_page}"
+               class="profile-menu-item">
                 <span>＋ チームを作成</span>
                 <span class="profile-menu-arrow">＞</span>
-            </div>
+            </a>
 
-            <div class="profile-menu-item">
+            <a th:href="@{/team_join_page}"
+               class="profile-menu-item">
                 <span>招待コードでチームに参加</span>
                 <span class="profile-menu-arrow">＞</span>
-            </div>
+            </a>
 
         </div>
 
         <!-- ログアウト -->
-        <div class="profile-logout">
+        <a th:href="@{/logout_confirm_dialog}"
+           class="profile-logout">
             ログアウト
-        </div>
+        </a>
 
     </main>
-    
+
     <div th:replace="~{fragments/footer :: footer}"></div>
 
 </div>
