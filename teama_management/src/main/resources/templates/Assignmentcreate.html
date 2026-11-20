@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>課題登録 - 課題管理システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <header class="app-header">
+        <span>課題管理システム</span>
+        <span class="role-badge">リーダー</span>
+    </header>
+
+    <main class="container">
+        <div class="page-title-row">
+            <a th:href="@{/assignments}" class="back-link">&larr; 戻る</a>
+            <h1>課題登録</h1>
+        </div>
+
+        <form th:action="@{/assignments/create}" th:object="${form}" method="post" enctype="multipart/form-data"
+            novalidate>
+            <!-- 課題名 -->
+            <div class="form-group">
+                <label for="title">課題名</label>
+                <input type="text" id="title" th:field="*{title}" placeholder="例：活動レポート提出">
+                <p class="error" th:if="${titleErrorMessage}" th:text="'※' + ${titleErrorMessage}"></p>
+            </div>
+
+            <!-- 対象選択（チーム / 個人） -->
+            <div class="form-group">
+                <label>対象</label>
+                <div class="target-toggle">
+                    <label class="toggle-btn">
+                        <input type="radio" name="targetType" value="team" th:field="*{targetType}"
+                            onchange="toggleTargetFields()">
+                        <span>チーム</span>
+                    </label>
+                    <label class="toggle-btn">
+                        <input type="radio" name="targetType" value="individual" th:field="*{targetType}"
+                            onchange="toggleTargetFields()">
+                        <span>個人</span>
+                    </label>
+                </div>
+                <p class="error" th:if="${targetErrorMessage}" th:text="'※' + ${targetErrorMessage}"></p>
+            </div>
+
+            <!-- チーム選択 -->
+            <div class="form-group">
+                <label for="teamId">チーム</label>
+                <select id="teamId" th:field="*{teamId}">
+                    <option value="">チームを選択してください</option>
+                    <option th:each="team : ${leaderTeams}" th:value="${team}" th:text="${team}"></option>
+                </select>
+            </div>
+
+            <!-- 対象者検索・選択（個人選択時） -->
+            <div class="form-group" id="individualTargetSection"
+                th:style="${form.targetType == 'individual'} ? '' : 'display: none;'">
+                <label for="userSearchInput">対象者検索</label>
+                <div class="search-row">
+                    <input type="text" id="userSearchInput" placeholder="ユーザー名を入力">
+                    <button type="button" class="btn" onclick="addSelectedUser()">追加</button>
+                </div>
+                <div id="selectedUsersContainer" class="chip-list">
+                    <span class="chip" th:each="userId : ${form.assigneeIds}" th:data-uid="${userId}">
+                        <span th:text="${userId}"></span>
+                        <button type="button" class="chip-remove" onclick="removeSelectedUser(this)">&times;</button>
+                        <input type="hidden" name="assigneeIds" th:value="${userId}">
+                    </span>
+                </div>
+            </div>
+
+            <!-- 締め切り日時 -->
+            <div class="form-group">
+                <label for="dueDate">締め切り日時</label>
+                <input type="datetime-local" id="dueDate" th:field="*{dueDate}">
+                <p class="error" th:if="${dueDateErrorMessage}" th:text="'※' + ${dueDateErrorMessage}"></p>
+            </div>
+
+            <!-- 優先順位 -->
+            <div class="form-group">
+                <label for="priority">優先順位</label>
+                <select id="priority" th:field="*{priority}">
+                    <option value="高">高</option>
+                    <option value="中">中</option>
+                    <option value="低">低</option>
+                </select>
+            </div>
+
+            <!-- 説明・添付資料 -->
+            <div class="form-group">
+                <label for="description">説明</label>
+                <textarea id="description" th:field="*{description}" rows="4" placeholder="課題の説明を入力"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="attachmentFile">添付資料</label>
+                <input type="file" id="attachmentFile" th:field="*{attachmentFile}">
+            </div>
+
+            <!-- 登録失敗エラーメッセージ -->
+            <p class="error" th:if="${errorMessage}" th:text="'※' + ${errorMessage}"></p>
+
+            <!-- キャンセル・登録ボタン -->
+            <div class="action-buttons">
+                <a th:href="@{/assignments}" class="btn btn-red">キャンセル</a>
+                <button type="submit" class="btn btn-green">登録</button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        function toggleTargetFields() {
+            const selected = document.querySelector('input[name="targetType"]:checked');
+            const individualSection = document.getElementById('individualTargetSection');
+            if (!individualSection) return;
+            individualSection.style.display = (selected && selected.value === 'individual') ? '' : 'none';
+        }
+
+        function addSelectedUser() {
+            const input = document.getElementById('userSearchInput');
+            const container = document.getElementById('selectedUsersContainer');
+            const uid = input.value.trim();
+            if (!uid) return;
+
+            const exists = container.querySelector(`input[name="assigneeIds"][value="${CSS.escape(uid)}"]`);
+            if (exists) {
+                input.value = '';
+                return;
+            }
+
+            const chip = document.createElement('span');
+            chip.className = 'chip';
+            chip.setAttribute('data-uid', uid);
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = uid;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'chip-remove';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.onclick = function () { removeSelectedUser(removeBtn); };
+
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'assigneeIds';
+            hiddenInput.value = uid;
+
+            chip.appendChild(textSpan);
+            chip.appendChild(removeBtn);
+            chip.appendChild(hiddenInput);
+            container.appendChild(chip);
+
+            input.value = '';
+        }
+
+        function removeSelectedUser(btn) {
+            const chip = btn.closest('.chip');
+            if (chip) chip.remove();
+        }
+    </script>
+</body>
+
+</html>
