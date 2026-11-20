@@ -13,10 +13,7 @@
 
     <!-- ヘッダー -->
     <div class="profile-header-wrapper">
-        <div th:replace="~{fragments/header :: header}"></div>
-        <p class="profile-header-userid">
-            ユーザーID：<span th:text="${uid}"></span>
-        </p>
+        <header th:replace="~{header :: header(true)}"></header>
     </div>
 
     <main class="container profile-container">
