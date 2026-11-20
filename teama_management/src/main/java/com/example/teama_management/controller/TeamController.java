@@ -144,7 +144,13 @@ public class TeamController {
 
         // チーム名の入力を確認する
         if (teamName == null || teamName.isBlank()) {
-            model.addAttribute("errorMessage", "チーム名を入力してください");
+
+            model.addAttribute(
+                "errorMessage",
+                "チーム名を入力してください");
+
+            model.addAttribute("teamName", "");
+
             return showTeamCreate(session, model);
         }
 
@@ -173,16 +179,6 @@ public class TeamController {
                 model.addAttribute("leaderName", getUserName(uid));
 
                 return "team_create_page";
-            }
-
-            // 追加するユーザーが存在するか確認する
-            for (String memberId : uniqueMemberIds) {
-
-                DocumentSnapshot memberDoc = firestore.collection("users")
-                        .document(memberId)
-                        .get()
-                        .get();
-
             }
 
             // チームIDを自動生成する
