@@ -24,7 +24,9 @@
               th:action="@{/profile/edit}"
               method="post">
 
-            <div class="profile-icon">人</div>
+            <div class="profile-icon"
+                th:text="${#strings.substring(username, 0, 1)}">
+            </div>
 
             <div class="profile-info">
 
@@ -100,13 +102,13 @@
 
                 <!-- リーダーの場合 -->
                 <span th:if="${team.role == 'leader'}"
-                      class="team-role-badge team-leader">
+                      class="profile-role profile-role-leader">
                     リーダー
                 </span>
 
                 <!-- ユーザーの場合 -->
                 <span th:if="${team.role == 'user'}"
-                      class="team-role-badge team-user">
+                      class="profile-role profile-role-user">
                     ユーザー
                 </span>
 
