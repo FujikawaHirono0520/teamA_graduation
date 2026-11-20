@@ -217,8 +217,8 @@ public class TeamController {
             // まとめてFirestoreに保存する
             batch.commit().get();
 
-            // 作成後はプロフィール画面に戻る
-            return "redirect:/profile";
+            // 作成後は設定画面に戻る
+            return "redirect:/settings";
 
         } catch (Exception e) {
 

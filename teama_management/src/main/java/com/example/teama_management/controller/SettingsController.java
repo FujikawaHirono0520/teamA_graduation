@@ -19,17 +19,17 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class ProfileController {
+public class SettingsController {
 
     private final Firestore firestore;
 
-    public ProfileController(Firestore firestore) {
+    public SettingsController(Firestore firestore) {
         this.firestore = firestore;
     }
 
-    // プロフィールを表示する
-    @GetMapping("/profile")
-    public String showProfile(
+    // 設定画面を表示する
+    @GetMapping("/settings")
+    public String showSettings(
             HttpSession session,
             Model model) throws Exception {
 
@@ -59,7 +59,7 @@ public class ProfileController {
         // 所属チームを取得する
         model.addAttribute("teams", getTeams(uid));
 
-        return "profile";
+        return "settings";
     }
 
     // 所属チームを取得する
@@ -104,9 +104,9 @@ public class ProfileController {
         return teams;
     }
 
-    // プロフィールを編集する
-    @PostMapping("/profile/edit")
-    public String editProfile(
+    // ユーザー名を編集する
+    @PostMapping("/settings/edit")
+    public String editSettings(
             @RequestParam("username") String username,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
@@ -128,7 +128,7 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute("editMode", true);
             redirectAttributes.addFlashAttribute("usernameInput", "");
 
-            return "redirect:/profile";
+            return "redirect:/settings";
         }
 
         // 前後の空白を取り除く
@@ -152,7 +152,7 @@ public class ProfileController {
                     .get();
 
             // 更新後は設定画面に戻る
-            return "redirect:/profile";
+            return "redirect:/settings";
 
         } catch (Exception e) {
 
@@ -165,19 +165,37 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute(
                     "usernameInput", username);
 
-            return "redirect:/profile";
+            return "redirect:/settings";
         }
     }
 
     // パスワード変更画面を表示する
     @GetMapping("/password_change_page")
-    public String showPasswordChange() {
+    public String showPasswordChange(HttpSession session) {
+
+        // ログイン中のユーザーIDを取得する
+        String uid = (String) session.getAttribute("loginUid");
+
+        // ログインしていない場合はログイン画面に戻る
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
         return "password_change_page";
     }
 
     // 招待コードでチームに参加する画面を表示する
     @GetMapping("/team_join_page")
-    public String showTeamJoin() {
+    public String showTeamJoin(HttpSession session) {
+
+        // ログイン中のユーザーIDを取得する
+        String uid = (String) session.getAttribute("loginUid");
+
+        // ログインしていない場合はログイン画面に戻る
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
         return "team_join_page";
     }
 
