@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>チーム作成 - 課題管理システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="team-create-page">
+
+    <!-- ヘッダー -->
+    <header th:replace="~{fragments/header :: header(true)}"></header>
+
+    <main class="container team-create-container">
+
+        <!-- 画面タイトル -->
+        <div class="page-title-container">
+
+            <!-- 戻るボタン -->
+            <a th:href="@{/profile}" class="back-link">←</a>
+
+            <!-- タイトル -->
+            <h1>チーム作成</h1>
+
+            <!-- リーダー表示 -->
+            <span class="team-leader-badge">リーダー</span>
+
+        </div>
+
+        <form th:action="@{/team_create_page}"
+              method="post"
+              id="teamCreateForm"
+              novalidate>
+
+            <!-- チーム名 -->
+            <label for="teamName">チーム名</label>
+            <input type="text"
+                   id="teamName"
+                   name="teamName"
+                   placeholder="チーム名を入力"
+                   th:value="${teamName}">
+
+            <!-- チーム名エラー -->
+            <p id="teamNameError" class="error"></p>
+
+            <!-- ユーザー検索 -->
+            <label for="userSearch">ユーザー名またはIDで検索して追加</label>
+            <input type="text"
+                   id="userSearch"
+                   placeholder="ユーザー名 / ユーザーID">
+
+            <!-- 検索結果 -->
+            <div id="searchResults" class="team-search-results"></div>
+
+            <!-- 検索エラー -->
+            <p id="searchError" class="search-error"></p>
+
+            <!-- 追加するユーザー -->
+            <div class="team-member-area">
+
+                <h2>
+                    追加するユーザー
+                    （<span id="memberCount">0</span>人）
+                </h2>
+
+                <div id="selectedMembers"
+                     class="team-selected-members">
+                </div>
+
+                <!-- ユーザー未登録・作成失敗エラー -->
+                <p class="error"
+                   th:if="${errorMessage}"
+                   th:text="'※' + ${errorMessage}">
+                </p>
+
+            </div>
+
+            <!-- キャンセル・作成ボタン -->
+            <div class="team-create-buttons">
+
+                <!-- キャンセル -->
+                <a th:href="@{/profile}"
+                   class="team-cancel-btn">
+                    キャンセル
+                </a>
+
+                <!-- 作成 -->
+                <button type="submit"
+                        class="team-submit-btn">
+                    作成
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+    <!-- フッター -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+</div>
+
+
+<!-- ユーザー検索・追加処理 -->
+<script th:inline="javascript">
+
+    // 選択したユーザーを保存する
+    let selectedUsers = [];
+
+    // 検索先URL
+    const searchUrl = /*[[@{/team_create_page/search}]]*/
+                      "/team_create_page/search";
+
+
+    // チーム名の入力チェック
+    document.getElementById("teamCreateForm")
+        .addEventListener("submit", function(event) {
+
+            const teamName =
+                document.getElementById("teamName").value.trim();
+
+            const error =
+                document.getElementById("teamNameError");
+
+            // 前のエラーメッセージを消す
+            error.textContent = "";
+
+            // チーム名が未入力の場合
+            if (teamName === "") {
+                event.preventDefault();
+
+                error.textContent =
+                    "※チーム名を入力してください";
+            }
+        });
+
+
+    // ユーザー検索
+    document.getElementById("userSearch")
+        .addEventListener("input", function() {
+
+            const keyword = this.value.trim();
+            const results =
+                document.getElementById("searchResults");
+
+            const searchError =
+                document.getElementById("searchError");
+
+            // 前の検索結果とエラーを消す
+            results.innerHTML = "";
+            searchError.textContent = "";
+
+            // 入力が空の場合は検索しない
+            if (keyword === "") {
+                return;
+            }
+
+            // ユーザーを検索する
+            fetch(searchUrl + "?keyword=" + encodeURIComponent(keyword))
+                .then(response => {
+
+                    if (!response.ok) {
+                        throw new Error("検索に失敗しました");
+                    }
+
+                    return response.json();
+                })
+                .then(users => {
+
+                    // 検索結果がない場合
+                    if (users.length === 0) {
+                        searchError.textContent =
+                            "検索に該当するユーザーが見つかりません";
+                        return;
+                    }
+
+                    // 追加できるユーザーがいるか確認する
+                    let foundUser = false;
+
+                    users.forEach(user => {
+
+                        // すでに追加済みの場合は表示しない
+                        if (selectedUsers.some(
+                            member => member.id === user.id)) {
+                            return;
+                        }
+
+                        foundUser = true;
+
+                        // 検索結果の枠
+                        const item = document.createElement("button");
+                        item.type = "button";
+                        item.className = "team-search-item";
+
+                        // ユーザー名
+                        const name = document.createElement("span");
+                        name.className = "user-name";
+                        name.textContent = user.name;
+
+                        // ユーザーID
+                        const id = document.createElement("span");
+                        id.className = "user-id";
+                        id.textContent = "ユーザーID：" + user.id;
+
+                        // 枠全体をクリックするとユーザーを追加
+                        item.addEventListener("click", function() {
+
+                            selectedUsers.push(user);
+
+                            // 追加したユーザーを表示
+                            showSelectedMembers();
+
+                            // 検索結果を消す
+                            results.innerHTML = "";
+
+                            // 検索欄を空にする
+                            document.getElementById("userSearch").value = "";
+
+                            // 検索エラーを消す
+                            searchError.textContent = "";
+                        });
+
+                        // 検索結果の枠に名前とIDを追加
+                        item.appendChild(name);
+                        item.appendChild(id);
+
+                        results.appendChild(item);
+                    });
+
+                    // 検索結果がすべて追加済みの場合
+                    if (!foundUser) {
+                        searchError.textContent =
+                            "検索に該当するユーザーが見つかりません";
+                    }
+                })
+                .catch(error => {
+                    console.error("ユーザー検索に失敗しました", error);
+                });
+        });
+
+    // 追加したユーザーを表示
+    function showSelectedMembers() {
+
+        const area =
+            document.getElementById("selectedMembers");
+
+        // 表示内容を初期化
+        area.innerHTML = "";
+
+        // 追加した人数を更新
+        document.getElementById("memberCount").textContent =
+            selectedUsers.length;
+
+        selectedUsers.forEach((user, index) => {
+
+            // ユーザー1人分の表示
+            const item = document.createElement("div");
+            item.className = "team-selected-member";
+
+            // ユーザー名
+            const name = document.createElement("span");
+            name.textContent = user.name;
+
+            // ユーザーID
+            const id = document.createElement("small");
+            id.textContent = "ID:" + user.id;
+
+            // 削除ボタン
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.textContent = "×";
+
+            // ユーザーを削除
+            removeButton.addEventListener("click", function() {
+
+                selectedUsers.splice(index, 1);
+
+                showSelectedMembers();
+            });
+
+            // Controllerに送るユーザーID
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "memberIds";
+            hidden.value = user.id;
+
+            // 各要素を追加
+            item.appendChild(name);
+            item.appendChild(id);
+            item.appendChild(removeButton);
+            item.appendChild(hidden);
+
+            area.appendChild(item);
+        });
+    }
+
+</script>
+
+</body>
+</html>
