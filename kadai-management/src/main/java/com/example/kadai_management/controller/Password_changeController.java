@@ -1,3 +1,4 @@
+package com.example.kadai_management.controller;
 import javax.swing.*;
 import java.awt.*;
 import java.util.regex.Pattern;
@@ -6,7 +7,7 @@ import java.util.regex.Pattern;
  * 課題管理システム - パスワード変更画面 (Password_change_page.java)
  * 画面設計書（No.1〜16）・ユースケース記述・シーケンス図・画面イメージに基づき実装
  */
-public class Password_change_page extends JFrame {
+public class Password_changeController extends JFrame {
 
     // No.1〜10 画面項目
     private JLabel titleLabel;                         // No.1 画面タイトル
@@ -138,11 +139,11 @@ public class Password_change_page extends JFrame {
         }
     }
 
-    public Password_change_page() {
+    public Password_changeController() {
         this("s12345");
     }
 
-    public Password_change_page(String userId) {
+    public Password_changeController(String userId) {
         this.currentUserId = userId;
         this.controller = new PasswordChangeController(new FirebaseAuthenticationService());
 
@@ -413,7 +414,7 @@ public class Password_change_page extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new Password_change_page("s12345").setVisible(true);
+            new Password_changeController("s12345").setVisible(true);
         });
     }
 }

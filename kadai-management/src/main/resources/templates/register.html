@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>新規登録 - 課題管理システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+  </head>
+  <body>
+    <div th:replace="~{fragments/header :: header(false)}"></div>
+
+    <main class="container">
+      <div class="page-title-container">
+        <a th:href="@{/login}" class="back-link">←</a>
+        <h1>新規登録</h1>
+      </div>
+
+      <form th:action="@{/register}" th:object="${registerForm}" method="post" novalidate>
+        <label for="_usernameController">ユーザー名</label>
+        <input type="text" id="_usernameController" th:field="*{_usernameController}">
+
+        <label for="_emailController">メールアドレス</label>
+        <input type="text" id="_emailController" th:field="*{_emailController}">
+        <p class="error" th:if="${emailFormatError}" th:text="${emailFormatError}"></p>
+        <p class="error" th:if="${emailDuplicateError}" th:text="${emailDuplicateError}"></p>
+
+        <label for="_passwordController">パスワード</label>
+        <div class="password-field">
+          <input type="password" id="_passwordController" th:field="*{_passwordController}">
+          <button type="button" class="toggle-password" onclick="toggleEye('_passwordController')">👁</button>
+        </div>
+
+        <label for="_passwordConfirmController">パスワード（確認用）</label>
+        <div class="password-field">
+          <input type="password" id="_passwordConfirmController" th:field="*{_passwordConfirmController}">
+          <button type="button" class="toggle-password" onclick="toggleEye('_passwordConfirmController')">👁</button>
+        </div>
+
+        <p class="error" th:if="${emptyError}" th:text="${emptyError}"></p>
+        <p class="error" th:if="${passwordPolicyError}" th:text="${passwordPolicyError}"></p>
+        <p class="error" th:if="${passwordMismatchError}" th:text="${passwordMismatchError}"></p>
+        <p class="error" th:if="${systemError}" th:text="${systemError}"></p>
+
+        <button type="submit" class="btn btn-water-blue">新規登録</button>
+      </form>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+      function toggleEye(id) {
+        const el = document.getElementById(id);
+        el.type = el.type === "password" ? "text" : "password";
+      }
+    </script>
+  </body>
+</html>
