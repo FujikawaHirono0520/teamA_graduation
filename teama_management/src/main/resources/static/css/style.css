@@ -626,3 +626,209 @@ input[type=password] {
     font-size: 0.78rem;
     color: #e60000;
 }
+
+/* ===== チーム作成画面の入力欄 ===== */
+
+
+/* チーム名・ユーザー検索のラベル */
+.team-create-container label {
+    margin-top: 14px;
+}
+
+/* チーム名・ユーザー検索の入力欄 */
+.team-create-container input[type=text] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin-top: 4px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+
+/* ===== ユーザー検索結果 ===== */
+
+/* 検索結果全体の表示位置 */
+.team-search-results {
+    width: 100%;
+    margin-top: 2px;
+}
+
+/* 検索結果1件分のデザイン */
+.team-search-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 34px;
+    padding: 6px 12px;
+    border: 1px solid #aaa;
+    border-radius: 7px;
+    background: #f5f5f5;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* 検索結果にマウスを乗せたとき */
+.team-search-item:hover {
+    background: #e5e5e5;
+}
+
+/* 検索結果のユーザー名 */
+.team-search-item .user-name {
+    color: #333;
+}
+
+/* 検索結果のユーザーID */
+.team-search-item .user-id {
+    color: #555;
+    font-size: 0.75rem;
+}
+
+
+/* ===== 追加するユーザー一覧 ===== */
+
+/* 追加するユーザー一覧の表示位置 */
+.team-member-area {
+    margin-top: 30px;
+}
+
+/* 追加するユーザーの見出し */
+.team-member-area h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+/* 追加したユーザーを縦に並べる */
+.team-selected-members {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 2px;
+}
+
+/* 追加したユーザー1人分の表示 */
+.team-selected-member {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    min-width: 230px;
+    max-width: 100%;
+    padding: 5px 12px;
+    background: #eee;
+    border-radius: 22px;
+    box-sizing: border-box;
+    font-size: 0.85rem;
+}
+
+/* 追加したユーザーのID */
+.team-selected-member small {
+    color: #555;
+    font-size: 0.7rem;
+}
+
+/* 追加したユーザーを削除するボタン */
+.team-selected-member button {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+
+/* ===== チーム作成画面のボタン ===== */
+
+/* キャンセルと作成ボタンを横並びにする */
+.team-create-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+}
+
+/* キャンセル・作成ボタン共通のデザイン */
+.team-cancel-btn,
+.team-submit-btn {
+    width: 50%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+/* キャンセルボタン（赤色） */
+.team-cancel-btn {
+    background: #e60000;
+    cursor: pointer;
+}
+
+/* 作成ボタン（緑色） */
+.team-submit-btn {
+    background: #009900;
+    cursor: pointer;
+}
+
+/* ボタンにマウスを乗せたとき */
+.team-cancel-btn:hover,
+.team-submit-btn:hover {
+    opacity: 0.8;
+}
+
+/* リーダー表示 */
+.team-leader-badge {
+    margin-left: auto;
+    padding: 5px 13px;
+    background: #ed7d16;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+/* チーム名未入力・Controllerからのエラー */
+.team-create-container .error {
+    color: #e60000;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+/* ユーザー検索で該当者がいない場合 */
+.search-error {
+    color: #009900;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+
+/* チームの役割表示 */
+.team-role-badge {
+    display: inline-block;
+    min-width: 65px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.75rem;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* ユーザーの場合 */
+.team-user {
+    background-color: #4a90e2;
+}
+
+/* リーダーの場合 */
+.team-leader {
+    background-color: #f58220;
+}

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -13,7 +12,7 @@
 
     <!-- ヘッダー -->
     <div class="profile-header-wrapper">
-        <header th:replace="~{header :: header(true)}"></header>
+        <header th:replace="~{fragments/header :: header(true)}"></header>
     </div>
 
     <main class="container profile-container">
@@ -95,21 +94,41 @@
             <a th:each="team : ${teams}"
                th:href="@{/team_detail_page/{teamId}(teamId=${team.id})}"
                class="profile-menu-item">
+
+                <!-- チーム名 -->
                 <span th:text="${team.name}"></span>
+
+                <!-- リーダーの場合 -->
+                <span th:if="${team.role == 'leader'}"
+                      class="team-role-badge team-leader">
+                    リーダー
+                </span>
+
+                <!-- ユーザーの場合 -->
+                <span th:if="${team.role == 'user'}"
+                      class="team-role-badge team-user">
+                    ユーザー
+                </span>
+
+                <!-- 右矢印 -->
                 <span class="profile-menu-arrow">＞</span>
+
             </a>
 
+            <!-- 所属チームがない場合 -->
             <a th:if="${#lists.isEmpty(teams)}"
                class="profile-menu-item">
                 <span>所属しているチームはありません</span>
             </a>
 
+            <!-- チーム作成 -->
             <a th:href="@{/team_create_page}"
                class="profile-menu-item">
                 <span>＋ チームを作成</span>
                 <span class="profile-menu-arrow">＞</span>
             </a>
 
+            <!-- チーム参加 -->
             <a th:href="@{/team_join_page}"
                class="profile-menu-item">
                 <span>招待コードでチームに参加</span>
@@ -126,6 +145,7 @@
 
     </main>
 
+    <!-- フッター -->
     <div th:replace="~{fragments/footer :: footer}"></div>
 
 </div>

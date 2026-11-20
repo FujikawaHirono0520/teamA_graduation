@@ -1,20 +1,22 @@
-
 package com.example.teama_management.controller;
 
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
-
 import jakarta.servlet.http.HttpSession;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ProfileController {
@@ -32,7 +34,7 @@ public class ProfileController {
             Model model) throws Exception {
 
         // ログイン中のユーザーIDを取得する
-        String uid = (String) session.getAttribute("uid");
+        String uid = (String) session.getAttribute("loginUid");
 
         // ログインしていない場合はログイン画面に戻る
         if (uid == null) {
@@ -54,7 +56,52 @@ public class ProfileController {
         model.addAttribute("username", userDoc.getString("username"));
         model.addAttribute("uid", uid);
 
+        // 所属チームを取得する
+        model.addAttribute("teams", getTeams(uid));
+
         return "profile";
+    }
+
+    // 所属チームを取得する
+    private List<Map<String, String>> getTeams(String uid) throws Exception {
+
+        List<Map<String, String>> teams = new ArrayList<>();
+
+        // ユーザーの所属情報を取得する
+        QuerySnapshot memberResult = firestore.collection("teammembers")
+                .whereEqualTo("userId", uid)
+                .get()
+                .get();
+
+        // 所属情報からチームIDと役割を取得する
+        for (DocumentSnapshot memberDoc : memberResult.getDocuments()) {
+
+            String teamId = memberDoc.getString("teamId");
+            String role = memberDoc.getString("role");
+
+            if (teamId == null) {
+                continue;
+            }
+
+            // チーム情報を取得する
+            DocumentSnapshot teamDoc = firestore.collection("teams")
+                    .document(teamId)
+                    .get()
+                    .get();
+
+            if (teamDoc.exists()) {
+
+                Map<String, String> team = new HashMap<>();
+
+                team.put("id", teamDoc.getId());
+                team.put("name", teamDoc.getString("teamName"));
+                team.put("role", role);
+
+                teams.add(team);
+            }
+        }
+
+        return teams;
     }
 
     // プロフィールを編集する
@@ -65,7 +112,7 @@ public class ProfileController {
             RedirectAttributes redirectAttributes) {
 
         // ログイン中のユーザーIDを取得する
-        String uid = (String) session.getAttribute("uid");
+        String uid = (String) session.getAttribute("loginUid");
 
         // ログインしていない場合はログイン画面に戻る
         if (uid == null) {
@@ -126,12 +173,6 @@ public class ProfileController {
     @GetMapping("/password_change_page")
     public String showPasswordChange() {
         return "password_change_page";
-    }
-
-    // チーム作成画面を表示する
-    @GetMapping("/team_create_page")
-    public String showTeamCreate() {
-        return "team_create_page";
     }
 
     // 招待コードでチームに参加する画面を表示する
