@@ -121,4 +121,28 @@ public class ProfileController {
             return "redirect:/profile";
         }
     }
+
+    // パスワード変更画面を表示する
+    @GetMapping("/password_change_page")
+    public String showPasswordChange() {
+        return "password_change_page";
+    }
+
+    // チーム作成画面を表示する
+    @GetMapping("/team_create_page")
+    public String showTeamCreate() {
+        return "team_create_page";
+    }
+
+    // 招待コードでチームに参加する画面を表示する
+    @GetMapping("/team_join_page")
+    public String showTeamJoin() {
+        return "team_join_page";
+    }
+
+    // ログアウト確認画面を表示する
+    @GetMapping("/logout_confirm_dialog")
+    public String showLogoutConfirm() {
+        return "logout_confirm_dialog";
+    }
 }

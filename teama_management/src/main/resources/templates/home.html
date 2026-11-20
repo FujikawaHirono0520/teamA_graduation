@@ -7,7 +7,8 @@
   <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<header class="app-header">課題管理システム</header>
+<!-- ヘッダー -->
+    <div th:replace="~{fragments/header :: header(true)}"></div>
 <main class="container">
   <h1>ホーム</h1>
   <p th:text="${name} + ' さん、ようこそ'"></p>
