@@ -233,7 +233,7 @@ input[type=password] {
 /* ===== プロフィール画面 ===== */
 
 /* ユーザー情報カード */
-.profile-card {
+.settings-card {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -247,7 +247,7 @@ input[type=password] {
 }
 
 /* プロフィールアイコン */
-.profile-icon {
+.settings-icon {
     width: 64px;
     height: 64px;
     flex-shrink: 0;
@@ -263,25 +263,25 @@ input[type=password] {
 }
 
 /* ユーザー情報 */
-.profile-info {
+.settings-info {
     flex: 1;
     min-width: 0;
 }
 
-.profile-name {
+.settings-name {
     margin: 0 0 8px;
     font-size: 1rem;
     font-weight: bold;
 }
 
-.profile-id {
+.settings-id {
     margin: 0;
     color: #555;
     font-size: 0.8rem;
 }
 
 /* 編集ボタン */
-.profile-edit-btn {
+.settings-edit-btn {
     align-self: flex-start;
     padding: 7px 18px;
     border: 1px solid #3399ff;
@@ -295,19 +295,19 @@ input[type=password] {
 }
 
 /* セクション見出し */
-.profile-section-title {
+.settings-section-title {
     margin: 14px 0 8px;
     font-size: 0.9rem;
     font-weight: bold;
 }
 
 /* メニュー一覧 */
-.profile-menu {
+.settings-menu {
     border: 1px solid #ddd;
     margin-bottom: 28px;
 }
 
-.profile-menu-item {
+.settings-menu-item {
     min-height: 50px;
     padding: 0 12px;
     display: flex;
@@ -319,24 +319,24 @@ input[type=password] {
     font-size: 0.9rem;
 }
 
-.profile-menu-item:last-child {
+.settings-menu-item:last-child {
     border-bottom: none;
 }
 
 /* 右側の矢印 */
-.profile-menu-arrow {
+.settings-menu-arrow {
     color: #888;
     font-size: 1.2rem;
 }
 
 /* チーム名 */
-.profile-menu-item > span:first-child {
+.settings-menu-item > span:first-child {
     flex: 1;
     min-width: 0;
 }
 
 /* チームの役割 */
-.profile-role {
+.settings-role {
     width: 65px;
     flex-shrink: 0;
     margin-right: 15px;
@@ -349,16 +349,16 @@ input[type=password] {
     box-sizing: border-box;
 }
 
-.profile-role-user {
+.settings-role-user {
     background: #4b91dc;
 }
 
-.profile-role-leader {
+.settings-role-leader {
     background: #ed7b19;
 }
 
 /* ログアウトボタン */
-.profile-logout {
+.settings-logout {
     display: block;
     width: 100%;
     padding: 12px;
@@ -373,7 +373,7 @@ input[type=password] {
     box-sizing: border-box;
 }
 /* ログアウトボタンのホバー */
-.profile-logout:hover {
+.settings-logout:hover {
     background: #f00000;
     color: #fff;
     cursor: pointer;
@@ -396,7 +396,7 @@ input[type=password] {
 /* ===== プロフィール画面のサイズ調整 ===== */
 
 /* 画面全体 */
-.profile-page {
+.settings-page {
     width: 100%;
     max-width: none;
     min-height: 100vh;
@@ -407,23 +407,12 @@ input[type=password] {
     overflow: hidden;
 }
 
-/* 設定画面のヘッダー */
-.profile-header {
-    position: relative;
-    width: 100%;
-    min-height: 66px;
-    padding: 14px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
-}
 
-.profile-header-title {
+.settings-header-title {
     font-size: 1rem;
 }
 
-.profile-header-userid {
+.settings-header-userid {
     position: absolute;
     right: 6px;
     bottom: 2px;
@@ -432,7 +421,7 @@ input[type=password] {
 }
 
 /* 設定画面の内容 */
-.profile-container {
+.settings-container {
     width: 100%;
     max-width: 480px;
     margin: 0 auto;
@@ -440,19 +429,19 @@ input[type=password] {
     box-sizing: border-box;
 }
 
-.profile-container h1 {
+.settings-container h1 {
     margin: 0 0 14px;
     font-size: 1.1rem;
 }
 
 /* ユーザー情報カード */
-.profile-card {
+.settings-card {
     width: 100%;
 }
 
 
 /* ユーザー名編集時の入力欄 */
-.profile-info input[type=text] {
+.settings-info input[type=text] {
     width: 100%;
     max-width: 150px;
     padding: 10px;
@@ -464,7 +453,7 @@ input[type=password] {
 }
 
 /* 編集・確定ボタン */
-.profile-edit-btn {
+.settings-edit-btn {
     align-self: flex-start;
     min-width: 65px;
     padding: 7px 16px;
@@ -521,7 +510,7 @@ input[type=password] {
     color: #111;
 }
 
-/* リーダーバッジ（既存の .profile-role-leader と同系色） */
+/* リーダーバッジ（既存の .settings-role-leader と同系色） */
 .assignment-role-badge {
     display: inline-block;
     padding: 4px 14px;
@@ -931,16 +920,6 @@ input[type=password] {
     font-size: 0.75rem;
     text-align: center;
     box-sizing: border-box;
-}
-
-/* ユーザーの場合 */
-.team-user {
-    background-color: #4a90e2;
-}
-
-/* リーダーの場合 */
-.team-leader {
-    background-color: #f58220;
 }
 
 /* ===== ログアウト確認ダイアログ ===== */

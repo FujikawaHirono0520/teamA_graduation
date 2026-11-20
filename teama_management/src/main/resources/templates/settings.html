@@ -8,30 +8,30 @@
 </head>
 <body>
 
-<div class="profile-page">
+<div class="settings-page">
 
     <!-- ヘッダー -->
-    <div class="profile-header-wrapper">
+    <div class="settings-header-wrapper">
         <header th:replace="~{fragments/header :: header(true)}"></header>
     </div>
 
-    <main class="container profile-container">
+    <main class="container settings-container">
 
         <h1>設定</h1>
 
         <!-- ユーザー情報 -->
-        <form class="profile-card"
-              th:action="@{/profile/edit}"
+        <form class="settings-card"
+              th:action="@{/settings/edit}"
               method="post">
 
-            <div class="profile-icon"
-                th:text="${#strings.substring(username, 0, 1)}">
+            <div class="settings-icon"
+                 th:text="${#strings.isEmpty(username) ? '人' : #strings.substring(username, 0, 1)}">
             </div>
 
-            <div class="profile-info">
+            <div class="settings-info">
 
                 <!-- 通常時のユーザー名 -->
-                <p class="profile-name"
+                <p class="settings-name"
                    id="usernameDisplay"
                    th:text="${username}"
                    th:style="${editMode} ? 'display:none' : ''">
@@ -45,7 +45,7 @@
                        th:style="${editMode} ? '' : 'display:none'">
 
                 <!-- ユーザーID -->
-                <p class="profile-id">
+                <p class="settings-id">
                     ユーザーID：<span th:text="${uid}"></span>
                 </p>
 
@@ -59,7 +59,7 @@
 
             <!-- 編集ボタン -->
             <button type="button"
-                    class="profile-edit-btn"
+                    class="settings-edit-btn"
                     id="editButton"
                     th:style="${editMode} ? 'display:none' : ''"
                     onclick="showUsernameEdit()">
@@ -68,7 +68,7 @@
 
             <!-- 確定ボタン -->
             <button type="submit"
-                    class="profile-edit-btn"
+                    class="settings-edit-btn"
                     id="saveButton"
                     th:style="${editMode} ? '' : 'display:none'">
                 確定
@@ -77,64 +77,64 @@
         </form>
 
         <!-- アカウント -->
-        <h2 class="profile-section-title">アカウント</h2>
+        <h2 class="settings-section-title">アカウント</h2>
 
-        <div class="profile-menu">
+        <div class="settings-menu">
             <a th:href="@{/password_change_page}"
-               class="profile-menu-item">
+               class="settings-menu-item">
                 <span>パスワード変更</span>
-                <span class="profile-menu-arrow">＞</span>
+                <span class="settings-menu-arrow">＞</span>
             </a>
         </div>
 
         <!-- 所属チーム -->
-        <h2 class="profile-section-title">所属チーム</h2>
+        <h2 class="settings-section-title">所属チーム</h2>
 
-        <div class="profile-menu">
+        <div class="settings-menu">
 
             <!-- 所属チーム一覧 -->
             <a th:each="team : ${teams}"
                th:href="@{/team_detail_page/{teamId}(teamId=${team.id})}"
-               class="profile-menu-item">
+               class="settings-menu-item">
 
                 <!-- チーム名 -->
                 <span th:text="${team.name}"></span>
 
                 <!-- リーダーの場合 -->
                 <span th:if="${team.role == 'leader'}"
-                      class="profile-role profile-role-leader">
+                      class="settings-role settings-role-leader">
                     リーダー
                 </span>
 
                 <!-- ユーザーの場合 -->
                 <span th:if="${team.role == 'user'}"
-                      class="profile-role profile-role-user">
+                      class="settings-role settings-role-user">
                     ユーザー
                 </span>
 
                 <!-- 右矢印 -->
-                <span class="profile-menu-arrow">＞</span>
+                <span class="settings-menu-arrow">＞</span>
 
             </a>
 
             <!-- 所属チームがない場合 -->
             <a th:if="${#lists.isEmpty(teams)}"
-               class="profile-menu-item">
+               class="settings-menu-item">
                 <span>所属しているチームはありません</span>
             </a>
 
             <!-- チーム作成 -->
             <a th:href="@{/team_create_page}"
-               class="profile-menu-item">
+               class="settings-menu-item">
                 <span>＋ チームを作成</span>
-                <span class="profile-menu-arrow">＞</span>
+                <span class="settings-menu-arrow">＞</span>
             </a>
 
             <!-- チーム参加 -->
             <a th:href="@{/team_join_page}"
-               class="profile-menu-item">
+               class="settings-menu-item">
                 <span>招待コードでチームに参加</span>
-                <span class="profile-menu-arrow">＞</span>
+                <span class="settings-menu-arrow">＞</span>
             </a>
 
         </div>
@@ -142,10 +142,9 @@
         <!-- ログアウト -->
         <button type="button"
                 id="logoutOpenButton"
-                class="profile-logout">
+                class="settings-logout">
             ログアウト
         </button>
-
 
         <!-- ログアウト確認ダイアログ -->
         <dialog id="logoutDialog" class="logout-dialog">
@@ -155,18 +154,21 @@
             <label>ログアウトすると、ログイン画面に戻ります。</label>
 
             <div class="logout-dialog-buttons">
+
                 <!-- キャンセル -->
                 <button type="button"
                         id="logoutCancelButton"
                         class="btn logout-cancel-btn">
                     キャンセル
                 </button>
+
                 <!-- ログアウト -->
                 <form th:action="@{/logout}" method="post">
                     <button type="submit" class="btn logout-confirm-btn">
                         ログアウト
                     </button>
                 </form>
+
             </div>
 
         </dialog>
@@ -197,6 +199,7 @@
         // 入力欄にカーソルを合わせる
         document.getElementById("usernameInput").focus();
     }
+
     // ログアウト確認ダイアログ
     // ダイアログとボタンを取得
     const logoutDialog = document.getElementById("logoutDialog");
@@ -213,5 +216,6 @@
         logoutDialog.close();
     });
 </script>
+
 </body>
 </html>
