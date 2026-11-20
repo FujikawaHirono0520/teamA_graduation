@@ -3,15 +3,40 @@ body {
   font-family: sans-serif;
   background: #fff;
   }
-  
+
 /* ヘッダー */
-.app-header {
-  background: #009900;
-  color: #fff;
-  text-align: center;
-  font-weight: bold;
-  padding: 14px;
-  }
+.app-header { position: relative; background: #009900; color: #fff; padding: 12px 14px 22px; }
+
+/* システムタイトル */
+.app-title {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* ユーザー名 */
+.header-user {
+    position: absolute;
+    right: 8px;
+    bottom: 3px;
+
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: bold;
+    white-space: nowrap;
+
+    color: #fff;
+}
+
+/* ユーザー名のリンク */
+.header-user a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.header-user a:visited {
+    color: #fff;
+}
 
 .container {
   max-width: 480px;
@@ -327,4 +352,15 @@ input[type=text], input[type=password] {
     font-weight: bold;
     cursor: pointer;
     white-space: nowrap;
+}
+
+/* ログイン */
+/* ログイン画面のリンク */
+.login-links {
+    justify-content: center;
+    gap: 8px;
+}
+
+.login-links p {
+    margin: 0;
 }
