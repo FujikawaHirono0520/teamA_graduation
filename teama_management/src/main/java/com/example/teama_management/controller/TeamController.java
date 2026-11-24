@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+// 2026年11月24日追加
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class TeamController {
@@ -280,5 +282,111 @@ public class TeamController {
                 .get();
 
         return userDoc.getString("username");
+    }
+    // チーム参加画面を表示する
+    @GetMapping("/team_join_page")
+    public String showTeamJoin(HttpSession session) {
+
+        // ログイン中のユーザーIDを取得する
+        String uid = (String) session.getAttribute("loginUid");
+
+        // ログインしていない場合
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        return "team_join_page";
+    }
+
+    // 招待コードでチームに参加する
+    @PostMapping("/team_join_page")
+    public String joinTeam(
+            @RequestParam("inviteCode") String inviteCode,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) throws Exception {
+
+        // ログイン中のユーザーIDを取得する
+        String uid = (String) session.getAttribute("loginUid");
+
+        // ログインしていない場合
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        // 招待コードの入力を確認する
+        if (inviteCode == null || inviteCode.isBlank()) {
+            model.addAttribute("errorMessage", "招待コードを入力してください");
+            return "team_join_page";
+        }
+
+        // 前後の空白を削除し、大文字に統一する
+        inviteCode = inviteCode.trim().toUpperCase();
+
+        // 招待コードからチームを検索する
+        QuerySnapshot teamResult = firestore.collection("teams")
+                .whereEqualTo("inviteCode", inviteCode)
+                .limit(1)
+                .get()
+                .get();
+
+        // 未入力の場合
+        if (inviteCode.isBlank()) {
+            model.addAttribute("errorMessage", "招待コードを入力してください");
+            return "team_join_page";
+        }
+
+        // 該当するチームが存在しない場合
+        if (teamResult.isEmpty()) {
+            model.addAttribute("errorMessage", "招待コードが正しくありません");
+            model.addAttribute("inviteCode", inviteCode);
+            return "team_join_page";
+        }
+
+        // 該当するチーム情報を取得する
+        DocumentSnapshot teamDoc = teamResult.getDocuments().get(0);
+
+        String teamId = teamDoc.getId();
+        String teamName = teamDoc.getString("teamName");
+
+        // すでに参加しているチームか確認する
+        QuerySnapshot memberResult = firestore.collection("teammembers")
+                .whereEqualTo("teamId", teamId)
+                .whereEqualTo("userId", uid)
+                .limit(1)
+                .get()
+                .get();
+
+        // すでに参加している場合
+        if (!memberResult.isEmpty()) {
+            model.addAttribute(
+                    "errorMessage",
+                    "すでに参加済みのチームです");
+
+            model.addAttribute("inviteCode", inviteCode);
+
+            return "team_join_page";
+        }
+
+        // チーム所属情報を登録する
+        DocumentReference memberRef =
+                firestore.collection("teammembers").document();
+
+        Map<String, Object> memberData = new HashMap<>();
+        memberData.put("teamMemberId", memberRef.getId());
+        memberData.put("teamId", teamId);
+        memberData.put("userId", uid);
+        memberData.put("role", "user");
+        memberData.put("joinedAt", FieldValue.serverTimestamp());
+
+        memberRef.set(memberData).get();
+
+        // 参加成功メッセージを設定する
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                teamName + "に参加しました");
+
+        // 参加したチームの課題一覧に遷移する
+        return "redirect:/assignments?teamId=" + teamId;
     }
 }

@@ -18,7 +18,7 @@
     <p class="no-team-title">まだチームに入っていません</p>
     <p class="no-team-sub">チームを作るか、招待コードで参加してください</p>
     <a class="btn btn-green btn-link" th:href="@{/team_create_page}">チームを作成する</a>
-    <a class="btn btn-outline-green btn-link" th:href="@{/teams/join}">招待コードでチームに参加</a>
+    <a class="btn btn-outline-green btn-link" th:href="@{/team_join_page}">招待コードでチームに参加</a>
   </div>
 
   <th:block th:if="${current != null}">
@@ -39,7 +39,7 @@
         </a>
         <hr>
         <a class="team-link" th:href="@{/team_create_page}">＋ チームを作成</a>
-        <a class="team-link" th:href="@{/teams/join}">＋ 招待コードで参加</a>
+        <a class="team-link" th:href="@{/team_join_page}">＋ 招待コードで参加</a>
       </div>
     </details>
 

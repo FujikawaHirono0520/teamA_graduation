@@ -38,7 +38,13 @@ public class AssignmentListController {
                        @RequestParam(name = "_SearchTaskName", required = false, defaultValue = "") String keyword,
                        @RequestParam(required = false, defaultValue = "all") String status,
                        HttpSession session, Model model) {
+        // ログイン中のユーザーIDを取得する
         String uid = (String) session.getAttribute("loginUid");
+
+        // ログインしていない場合はログイン画面に戻る
+        if (uid == null) {
+            return "redirect:/login";
+        }
 
         // 所属チームを取得する
         List<TeamMembership> memberships;
