@@ -1,5 +1,6 @@
 package com.example.teama_management.controller;
 
+import com.example.teama_management.service.FirebaseAuthRestClient;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,9 +25,13 @@ import java.util.Map;
 public class SettingsController {
 
     private final Firestore firestore;
+    private final FirebaseAuthRestClient authClient;
 
-    public SettingsController(Firestore firestore) {
+    public SettingsController(
+            Firestore firestore,
+            FirebaseAuthRestClient authClient) {
         this.firestore = firestore;
+        this.authClient = authClient;
     }
 
     // 設定画面を表示する
@@ -184,24 +191,99 @@ public class SettingsController {
         return "password_change_page";
     }
 
-    // 招待コードでチームに参加する画面を表示する
-    @GetMapping("/team_join_page")
-    public String showTeamJoin(HttpSession session) {
+
+
+
+    // パスワードを変更する
+    @PostMapping("/password_change_page")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> changePassword(
+            @RequestParam("currentPassword") String currentPassword,
+            @RequestParam("newPassword") String newPassword,
+            @RequestParam("confirmPassword") String confirmPassword,
+            HttpSession session) {
 
         // ログイン中のユーザーIDを取得する
         String uid = (String) session.getAttribute("loginUid");
 
-        // ログインしていない場合はログイン画面に戻る
+        // ログインしていない場合
         if (uid == null) {
-            return "redirect:/login";
+            return ResponseEntity.status(401)
+                    .body(Map.of("errorMessage", "ログインしてください"));
         }
 
-        return "team_join_page";
+        // 現在のパスワードが未入力の場合
+        if (currentPassword.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("errorMessage", "現在のパスワードを入力してください"));
+        }
+
+        // 新しいパスワードまたは確認用が未入力の場合
+        if (newPassword.isBlank() || confirmPassword.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                            "errorMessage",
+                            "新しいパスワードまたは新しいパスワード（確認用）を入力してください"));
+        }
+
+        // パスワードの形式を確認する
+        if (!newPassword.matches("(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{8,}")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                            "errorMessage",
+                            "パスワードは半角英数字すべて含む8文字以上で設定してください"));
+        }
+
+        // 新しいパスワードの確認
+        if (!newPassword.equals(confirmPassword)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("errorMessage", "パスワードが一致しません"));
+        }
+
+        try {
+            // Firestoreからメールアドレスを取得する
+            DocumentSnapshot userDoc = firestore.collection("users")
+                    .document(uid)
+                    .get()
+                    .get();
+
+            if (!userDoc.exists() || userDoc.getString("email") == null) {
+                return ResponseEntity.internalServerError()
+                        .body(Map.of(
+                                "errorMessage",
+                                "パスワードの変更に失敗しました"));
+            }
+
+            // メールアドレスを取得する
+            String email = userDoc.getString("email");
+
+            // Firebase Authenticationでパスワードを変更する
+            authClient.changePassword(
+                    email,
+                    currentPassword,
+                    newPassword);
+
+            // パスワードの変更が完了した場合
+            return ResponseEntity.ok()
+                    .body(Map.of("successMessage", "パスワードを変更しました"));
+
+        } catch (FirebaseAuthRestClient.AuthFailedException e) {
+
+            // 現在のパスワードが間違っている場合
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                            "errorMessage",
+                            "現在のパスワードが間違っています"));
+
+        } catch (Exception e) {
+
+            // パスワードの変更に失敗した場合
+            return ResponseEntity.internalServerError()
+                    .body(Map.of(
+                            "errorMessage",
+                            "パスワードの変更に失敗しました"));
+        }
     }
 
-    // ログアウト確認画面を表示する
-    @GetMapping("/logout_confirm_dialog")
-    public String showLogoutConfirm() {
-        return "logout_confirm_dialog";
-    }
+
 }
