@@ -984,3 +984,50 @@ input[type=password] {
 .logout-confirm-btn:hover {
     background: #c90000;
 }
+
+/* 課題一覧画面 */
+a.app-title { display: block; color: #fff; text-decoration: none; }
+.btn-link { display: block; text-align: center; text-decoration: none; box-sizing: border-box; }
+.btn-outline-green { background: #fff; color: #090; border: 2px solid #090; }
+
+.no-team { text-align: center; padding-top: 30vh; }
+.no-team-title { font-weight: bold; margin-bottom: 4px; }
+.no-team-sub { color: #777; font-size: 0.85rem; margin-bottom: 24px; }
+
+.badge { display: inline-block; padding: 2px 12px; border-radius: 12px; color: #fff; font-size: 0.75rem; font-weight: bold; }
+.badge-user { background: #4a90d9; }
+.badge-leader { background: #e07b1a; }
+
+.team-switch { border: 1px solid #888; border-radius: 6px; background: #f5f5f5; margin-bottom: 10px; }
+.team-switch summary { display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer; list-style: none; font-weight: bold; }
+.team-switch summary::-webkit-details-marker { display: none; }
+.team-switch summary .badge { margin-left: auto; }
+.team-menu { background: #fff; border: 1px solid #888; border-radius: 6px; margin: 0 8px 8px; padding: 6px 10px; }
+.team-item { display: flex; align-items: center; gap: 8px; padding: 10px 0; color: #000; text-decoration: none; }
+.team-item .badge { margin-left: auto; }
+.team-item .check { width: 1.2em; }
+.team-link { display: block; padding: 10px 0; color: #4a7fd9; text-decoration: none; font-size: 0.9rem; }
+
+.search-row { display: flex; gap: 8px; }
+.search-row input[type=text] { flex: 1; margin-top: 0; }
+.btn-search { padding: 0 18px; border: none; border-radius: 4px; background: #bbb; color: #fff; font-weight: bold; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+.chip input { display: none; }
+.chip span { display: inline-block; padding: 4px 12px; border: 1px solid #090; border-radius: 14px; background: #fff; color: #090; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+.chip input:checked + span { background: #090; color: #fff; }
+
+.card { display: block; background: #f4f4f4; border: 1px solid #e3e3e3; border-radius: 6px; padding: 12px; margin-bottom: 10px; color: #000; text-decoration: none; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.card-title { font-weight: bold; }
+.card-sub { color: #777; font-size: 0.8rem; margin-top: 8px; }
+.status { padding: 2px 12px; border-radius: 12px; color: #fff; font-size: 0.75rem; font-weight: bold; white-space: nowrap; }
+.st-gray { background: #999; }
+.st-orange { background: #f5a623; }
+.st-blue { background: #4a90d9; }
+.st-red { background: #e00000; }
+.st-green { background: #2e9e3e; }
+.empty { text-align: center; margin-top: 60px; }
+
+.fab { position: fixed; right: 18px; bottom: 24px; width: 52px; height: 52px; border-radius: 50%; background: #ff8c00; color: #fff; font-size: 2rem; line-height: 52px; text-align: center; text-decoration: none; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); }
+.snackbar { position: fixed; left: 12px; right: 12px; bottom: 20px; display: flex; gap: 8px; align-items: center; background: #fff; border-left: 5px solid #2e9e3e; padding: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+.snackbar-icon { color: #2e9e3e; font-weight: bold; }

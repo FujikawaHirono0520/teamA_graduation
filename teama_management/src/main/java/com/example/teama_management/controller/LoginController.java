@@ -59,7 +59,7 @@ public class LoginController {
                     ? result.email()
                     : result.displayName();
             session.setAttribute("loginName", name);
-            return "redirect:/home";
+            return "redirect:/assignments";
 
         } catch (AuthFailedException e) {
 

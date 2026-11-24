@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>課題一覧 - 課題管理システム</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- ヘッダー -->
+<div th:replace="~{fragments/header :: header(true)}"></div>
+<main class="container">
+
+  <p class="error" th:if="${teamError}" th:text="'※' + ${teamError}"></p>
+
+  <!-- どのチームにも参加していない場合 -->
+  <div class="no-team" th:if="${teamError == null and #lists.isEmpty(memberships)}">
+    <p class="no-team-title">まだチームに入っていません</p>
+    <p class="no-team-sub">チームを作るか、招待コードで参加してください</p>
+    <a class="btn btn-green btn-link" th:href="@{/teams/create}">チームを作成する</a>
+    <a class="btn btn-outline-green btn-link" th:href="@{/teams/join}">招待コードでチームに参加</a>
+  </div>
+
+  <th:block th:if="${current != null}">
+    <!-- チーム切り替え -->
+    <details class="team-switch">
+      <summary>
+        <span th:text="${current.teamName()}"></span><span>▼</span>
+        <span class="badge" th:classappend="${current.leader} ? 'badge-leader' : 'badge-user'"
+              th:text="${current.leader} ? 'リーダー' : 'ユーザー'"></span>
+      </summary>
+      <div class="team-menu">
+        <a class="team-item" th:each="m : ${memberships}"
+           th:href="@{/assignments(teamId=${m.teamId()})}">
+          <span class="check" th:text="${m.teamId() == current.teamId()} ? '☑' : ''"></span>
+          <span th:text="${m.teamName()}"></span>
+          <span class="badge" th:classappend="${m.leader} ? 'badge-leader' : 'badge-user'"
+                th:text="${m.leader} ? 'リーダー' : 'ユーザー'"></span>
+        </a>
+        <hr>
+        <a class="team-link" th:href="@{/teams/create}">＋ チームを作成</a>
+        <a class="team-link" th:href="@{/teams/join}">＋ 招待コードで参加</a>
+      </div>
+    </details>
+
+    <!-- 検索と絞り込み -->
+    <form th:action="@{/assignments}" method="get">
+      <div class="search-row">
+        <input type="text" name="_SearchTaskName" th:value="${keyword}" placeholder="課題名で検索">
+        <button type="submit" class="btn-search">検索</button>
+      </div>
+      <div class="chips">
+        <label class="chip" th:each="f : ${filters}">
+          <input type="radio" name="status" th:value="${f[0]}" th:checked="${f[0] == status}">
+          <span th:text="${f[1]}"></span>
+        </label>
+      </div>
+    </form>
+
+    <p class="error" th:if="${listError}" th:text="'※' + ${listError}"></p>
+    <p class="empty" th:if="${emptyMessage}" th:text="${emptyMessage}"></p>
+
+    <!-- 課題カード -->
+    <a class="card" th:each="a : ${assignments}" th:href="@{/assignments/{id}(id=${a.id()})}">
+      <div class="card-head">
+        <span class="card-title" th:text="${a.title()}"></span>
+        <span class="status" th:classappend="${a.status().cssClass()}"
+              th:text="${a.status().label(leader)}"></span>
+      </div>
+      <div class="card-sub" th:unless="${leader}"
+           th:text="'締め切り: ' + ${a.deadlineText()} + ' ／ 担当: ' + ${a.assigneeName()}"></div>
+      <div class="card-sub" th:if="${leader}"
+           th:text="'最終更新日: ' + ${a.updatedText()} + ' ／ 担当: ' + ${a.assigneeName()}"></div>
+    </a>
+
+    <!-- 課題登録ボタン（リーダーのみ） -->
+    <a class="fab" th:if="${leader}" th:href="@{/assignments/new}">＋</a>
+  </th:block>
+</main>
+<div th:replace="~{snackbar :: snackbar}"></div>
+</body>
+</html>
