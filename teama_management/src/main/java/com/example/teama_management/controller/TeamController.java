@@ -286,7 +286,10 @@ public class TeamController {
     }
     // チーム参加画面を表示する
     @GetMapping("/team_join_page")
-    public String showTeamJoin(HttpSession session) {
+    public String showTeamJoin(
+            @RequestParam(defaultValue = "false") boolean fromSettings,
+            HttpSession session,
+            Model model) {
 
         // ログイン中のユーザーIDを取得する
         String uid = (String) session.getAttribute("loginUid");
@@ -296,6 +299,8 @@ public class TeamController {
             return "redirect:/login";
         }
 
+        model.addAttribute("fromSettings", fromSettings);
+
         return "team_join_page";
     }
 
@@ -303,6 +308,8 @@ public class TeamController {
     @PostMapping("/team_join_page")
     public String joinTeam(
             @RequestParam("inviteCode") String inviteCode,
+            @RequestParam(value = "fromSettings", defaultValue = "false")
+            boolean fromSettings,
             HttpSession session,
             Model model,
             RedirectAttributes redirectAttributes) throws Exception {
@@ -318,6 +325,8 @@ public class TeamController {
         // 招待コードの入力を確認する
         if (inviteCode == null || inviteCode.isBlank()) {
             model.addAttribute("errorMessage", "招待コードを入力してください");
+            model.addAttribute("inviteCode", inviteCode);
+            model.addAttribute("fromSettings", fromSettings);
             return "team_join_page";
         }
 
@@ -334,6 +343,8 @@ public class TeamController {
         // 未入力の場合
         if (inviteCode.isBlank()) {
             model.addAttribute("errorMessage", "招待コードを入力してください");
+            model.addAttribute("fromSettings", fromSettings);
+            model.addAttribute("inviteCode", inviteCode);
             return "team_join_page";
         }
 
@@ -341,6 +352,7 @@ public class TeamController {
         if (teamResult.isEmpty()) {
             model.addAttribute("errorMessage", "招待コードが正しくありません");
             model.addAttribute("inviteCode", inviteCode);
+            model.addAttribute("fromSettings", fromSettings);
             return "team_join_page";
         }
 
@@ -365,6 +377,7 @@ public class TeamController {
                     "すでに参加済みのチームです");
 
             model.addAttribute("inviteCode", inviteCode);
+            model.addAttribute("fromSettings", fromSettings);
 
             return "team_join_page";
         }
