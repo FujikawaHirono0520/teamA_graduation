@@ -1,4 +1,4 @@
-package com.example.kadai_management.form;
+package com.example.teama_management.form;
 
 public class RegisterForm {
     private String _usernameController;
