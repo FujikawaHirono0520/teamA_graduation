@@ -1029,5 +1029,7 @@ a.app-title { display: block; color: #fff; text-decoration: none; }
 .empty { text-align: center; margin-top: 60px; }
 
 .fab { position: fixed; right: 18px; bottom: 24px; width: 52px; height: 52px; border-radius: 50%; background: #ff8c00; color: #fff; font-size: 2rem; line-height: 52px; text-align: center; text-decoration: none; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); }
-.snackbar { position: fixed; left: 12px; right: 12px; bottom: 20px; display: flex; gap: 8px; align-items: center; background: #fff; border-left: 5px solid #2e9e3e; padding: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
-.snackbar-icon { color: #2e9e3e; font-weight: bold; }
+.snackbar {position: fixed; left: 50%; transform: translateX(-50%); bottom: 40px; width: 310px; max-width: calc(100% - 40px); display: flex;
+    gap: 8px; align-items: center; background: #fff; border-left: 5px solid #2e9e3e; padding: 10px 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); box-sizing: border-box;}
+
+.snackbar-icon {color: #fff; background: #009900; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;}
