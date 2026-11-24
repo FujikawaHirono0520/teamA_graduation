@@ -17,7 +17,7 @@
   <div class="no-team" th:if="${teamError == null and #lists.isEmpty(memberships)}">
     <p class="no-team-title">まだチームに入っていません</p>
     <p class="no-team-sub">チームを作るか、招待コードで参加してください</p>
-    <a class="btn btn-green btn-link" th:href="@{/teams/create}">チームを作成する</a>
+    <a class="btn btn-green btn-link" th:href="@{/team_create_page}">チームを作成する</a>
     <a class="btn btn-outline-green btn-link" th:href="@{/teams/join}">招待コードでチームに参加</a>
   </div>
 
@@ -38,7 +38,7 @@
                 th:text="${m.leader} ? 'リーダー' : 'ユーザー'"></span>
         </a>
         <hr>
-        <a class="team-link" th:href="@{/teams/create}">＋ チームを作成</a>
+        <a class="team-link" th:href="@{/team_create_page}">＋ チームを作成</a>
         <a class="team-link" th:href="@{/teams/join}">＋ 招待コードで参加</a>
       </div>
     </details>
@@ -74,7 +74,7 @@
     </a>
 
     <!-- 課題登録ボタン（リーダーのみ） -->
-    <a class="fab" th:if="${leader}" th:href="@{/assignments/new}">＋</a>
+    <a class="fab" th:if="${leader}" th:href="@{/assignments/create}">＋</a>
   </th:block>
 </main>
 <div th:replace="~{snackbar :: snackbar}"></div>
