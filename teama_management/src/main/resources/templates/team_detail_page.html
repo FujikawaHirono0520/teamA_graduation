@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>チーム詳細 - 課題管理システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!-- ヘッダー -->
+    <header th:replace="~{fragments/header :: header(true)}"></header>
+
+    <main class="container team-detail-container">
+        <!-- エラーメッセージ -->
+        <div th:if="${errorMessage}" class="team-error-message">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- タイトル -->
+        <div class="assignment-title-bar">
+
+            <div class="assignment-title-left">
+
+                <!-- 戻るボタン -->
+                <a th:href="@{/settings}" class="back-link">←</a>
+
+                <h1>チーム詳細</h1>
+
+            </div>
+
+            <!-- 自分の役割 -->
+            <span th:if="${userRole == 'leader'}"
+                  class="settings-role settings-role-leader">
+                リーダー
+            </span>
+
+            <span th:if="${userRole == 'user'}"
+                  class="settings-role settings-role-user">
+                ユーザー
+            </span>
+
+        </div>
+
+        <!-- チーム情報 -->
+        <div class="card team-detail-card">
+
+            <!-- チーム名 -->
+            <p class="team-detail-name"
+               th:text="${teamName}">
+            </p>
+
+            <!-- チームID -->
+            <p class="card-sub">
+                チームID：
+                <span th:text="${teamId}"></span>
+            </p>
+
+            <!-- 招待コード -->
+            <div class="team-invite-row">
+
+                <p class="card-sub">
+                    招待コード：
+                    <span id="inviteCode"
+                          th:text="${inviteCode}">
+                    </span>
+                </p>
+
+                <!-- コピー -->
+                <button type="button"
+                        class="settings-edit-btn"
+                        onclick="copyInviteCode()">
+                    コピー
+                </button>
+
+            </div>
+
+            <!-- コピー完了メッセージ -->
+            <p id="copyMessage" class="success" hidden>
+                招待コードをコピーしました
+            </p>
+
+        </div>
+
+        <!-- メンバー一覧タイトル -->
+        <div class="team-detail-member-title">
+
+            <h2>
+                ユーザー
+                （<span th:text="${memberCount}"></span>人）
+            </h2>
+
+            <!-- 編集ボタン -->
+            <a th:href="@{/team_edit_page/{teamId}(teamId=${teamId})}"
+               class="team-member-edit-btn"
+               th:if="${userRole == 'leader'}">
+                編集
+            </a>
+
+        </div>
+
+        <!-- メンバー一覧 -->
+        <div class="team-detail-members">
+
+            <div class="team-detail-member"
+                 th:each="member : ${members}">
+
+                <!-- ユーザー名 -->
+                <span class="team-detail-member-name"
+                      th:text="${member.name}">
+                </span>
+
+                <!-- ユーザーID -->
+                <span class="team-detail-member-id"
+                      th:text="${member.id}">
+                </span>
+
+                <!-- リーダー -->
+                <span th:if="${member.role == 'leader'}"
+                      class="settings-role settings-role-leader">
+                    リーダー
+                </span>
+
+                <!-- ユーザー -->
+                <span th:if="${member.role == 'user'}"
+                      class="settings-role settings-role-user">
+                    ユーザー
+                </span>
+
+                <!-- メニュー -->
+                <a th:href="@{/User_action_dialog/{teamId}/{userId}(teamId=${teamId}, userId=${member.id})}"
+                   class="team-member-menu"
+                   th:if="${userRole == 'leader' and member.role != 'leader'}">
+                    …
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- チーム削除 -->
+        <a th:href="@{/Team_delete_dialog/{teamId}(teamId=${teamId})}"
+            class="team-delete-btn"
+            th:if="${userRole == 'leader'}">
+            チームを削除
+        </a>
+
+        <!-- 成功メッセージ -->
+        <div th:if="${successMessage}" class="team-result-message">
+            <span class="team-result-icon">✔</span>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+    </main>
+
+    <!-- フッター -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- 招待コードのコピー処理 -->
+    <script>
+        async function copyInviteCode() {
+
+            // 招待コードを取得する
+            const inviteCode =
+                document.getElementById("inviteCode").textContent.trim();
+
+            try {
+
+                // 招待コードをコピーする
+                await navigator.clipboard.writeText(inviteCode);
+
+                // コピー完了メッセージを表示する
+                document.getElementById("copyMessage").hidden = false;
+
+            } catch (error) {
+
+                // コピーに失敗した場合
+                alert("招待コードのコピーに失敗しました");
+            }
+        }
+    </script>
+
+</body>
+</html>
