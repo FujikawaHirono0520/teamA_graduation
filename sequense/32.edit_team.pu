@@ -1,0 +1,73 @@
+@startuml チーム情報を編集する
+title チーム情報を編集する
+autonumber
+
+actor リーダー as Leader
+boundary TeamDetailPage
+boundary TeamEditPage
+control TeamEditController
+database Firestore
+
+Leader -> TeamDetailPage : 「編集」を押下する
+activate TeamDetailPage
+TeamDetailPage -> TeamEditController : チームの編集を要求する
+deactivate TeamDetailPage
+activate TeamEditController
+TeamEditController -> Firestore : チーム情報と所属ユーザー情報を取得する
+activate Firestore
+return 取得結果
+TeamEditController --> TeamEditPage : 取得した情報をチーム編集画面に表示する
+deactivate TeamEditController
+activate TeamEditPage
+
+Leader -> TeamEditPage : チーム名を変更する
+
+opt ユーザーを追加する場合
+    Leader -> TeamEditPage : ユーザーを検索し、「追加」を押下する
+    TeamEditPage -> TeamEditController : ユーザーの検索を要求する
+    activate TeamEditController
+    alt 検索条件に該当するユーザーが見つからない場合
+        TeamEditController --> TeamEditPage : メッセージ「該当するユーザーが見つかりません」を表示する
+    else 追加しようとしたユーザーがすでに所属している場合
+        TeamEditController --> TeamEditPage : メッセージ「すでに追加されています」を表示する
+    else 追加できる場合
+        TeamEditController --> TeamEditPage : 該当するユーザーを所属ユーザーに追加する
+    end
+    deactivate TeamEditController
+end
+
+opt ユーザーを削除する場合
+    Leader -> TeamEditPage : 現在のユーザー一覧から削除したいユーザーを選択して削除する
+end
+
+alt 「キャンセル」を押下した場合
+    Leader -> TeamEditPage : 「キャンセル」を押下する
+    TeamEditPage -> TeamEditController : チーム編集のキャンセルを要求する
+    activate TeamEditController
+    TeamEditController --> TeamDetailPage : 変更内容を保存せず、チーム詳細画面に戻る
+    deactivate TeamEditController
+else 「更新」を押下した場合
+    Leader -> TeamEditPage : 「更新」を押下する
+    TeamEditPage -> TeamEditController : チーム情報の更新を要求する
+    activate TeamEditController
+    TeamEditController -> TeamEditController : 入力内容を検証する
+    alt チーム名が未入力の場合
+        TeamEditController --> TeamEditPage : エラーメッセージ「チーム名を入力してください」を表示する
+    else 作成者以外の所属ユーザーが1人もいない場合
+        TeamEditController --> TeamEditPage : エラーメッセージ「ユーザーを1人以上追加してください」を表示する
+    else 入力内容に問題がない場合
+        TeamEditController -> Firestore : 変更されたチーム情報と所属ユーザー情報を保存する
+        activate Firestore
+        return 保存結果
+        alt チーム情報の更新に失敗した場合
+            TeamEditController --> TeamEditPage : エラーメッセージ「チーム情報の更新に失敗しました」を表示する
+            deactivate TeamEditPage
+        else チーム情報の更新に成功した場合
+            TeamEditController --> TeamDetailPage : チーム詳細画面に遷移し、スナックバー「チーム情報を更新しました」を表示する
+            deactivate TeamEditController
+        end
+    end
+    deactivate TeamEditController
+end
+deactivate TeamEditPage
+@enduml

@@ -1,0 +1,36 @@
+@startuml チームに参加する
+title チームに参加する
+autonumber
+
+actor ユーザー as User
+boundary HomeOrSettingsPage
+boundary TeamJoinPage
+control TeamJoinController
+
+User -> HomeOrSettingsPage : 「招待コードでチームに参加」を押下する
+activate HomeOrSettingsPage
+HomeOrSettingsPage -> TeamJoinController : チーム参加画面の表示を要求する
+deactivate HomeOrSettingsPage
+activate TeamJoinController
+TeamJoinController --> TeamJoinPage : チーム参加画面を表示する
+deactivate TeamJoinController
+activate TeamJoinPage
+
+User -> TeamJoinPage : 招待コードを入力し、「参加する」を押下する
+TeamJoinPage -> TeamJoinController : チームへの参加を要求する
+activate TeamJoinController
+TeamJoinController -> TeamJoinController : 入力内容を検証する
+
+alt 招待コードが未入力の場合
+    TeamJoinController --> TeamJoinPage : エラーメッセージ「招待コードを入力してください」を表示する
+else チームコードが存在しない、または間違っている場合
+    TeamJoinController --> TeamJoinPage : エラーメッセージ「招待コードが正しくありません」を表示する
+else すでに参加しているチームの場合
+    TeamJoinController --> TeamJoinPage : エラーメッセージ「すでに参加済みのチームです」を表示する（重複登録は行わない）
+else 入力内容に問題がない場合
+    TeamJoinController -> TeamJoinController : 該当するチームのメンバーにユーザーを登録する
+    TeamJoinController --> HomeOrSettingsPage : 課題一覧画面に遷移し、スナックバー「（チーム名）に参加しました」を表示する
+end
+deactivate TeamJoinController
+deactivate TeamJoinPage
+@enduml

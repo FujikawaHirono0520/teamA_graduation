@@ -1,0 +1,27 @@
+@startuml 課題一覧を確認する（ユーザー）
+title 課題一覧を確認する（ユーザー）
+autonumber
+
+actor ユーザー as User
+boundary Header as H
+boundary AssignmentListPage
+control AssignmentListController
+database Firestore
+
+User -> H : ヘッダーの「システム名」を押下する
+activate H
+H -> AssignmentListController : 課題一覧の表示を要求する
+activate AssignmentListController
+AssignmentListController -> Firestore : 選択中のチームとユーザーIDに紐づく担当課題の情報を取得する
+activate Firestore
+return 取得結果
+
+alt 課題が登録されていない場合
+    AssignmentListController --> AssignmentListPage : メッセージ「担当している課題はありません」を表示する
+else 課題情報の取得に失敗した場合
+    AssignmentListController --> AssignmentListPage : エラーメッセージ「課題の取得に失敗しました」を表示する
+else 課題情報を取得できた場合
+    AssignmentListController --> AssignmentListPage : 取得した課題情報を課題一覧画面に表示する
+end
+deactivate AssignmentListController
+@enduml

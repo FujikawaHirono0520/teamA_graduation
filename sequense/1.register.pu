@@ -1,0 +1,53 @@
+@startuml 新規登録する
+title 新規登録する
+autonumber
+
+actor "リーダー/ユーザー" as Actor
+boundary LoginPage
+boundary RegisterPage
+control RegisterController
+' Firebase Authenticationは認証サービスなので、practicipantで表記
+participant "Firebase Authentication" as FirebaseAuth
+database Firestore
+
+Actor -> LoginPage : 「新規登録」を押下する
+activate LoginPage
+LoginPage -> RegisterController : 新規登録画面の表示を要求する
+deactivate LoginPage
+activate RegisterController
+RegisterController --> RegisterPage : 新規登録画面を表示する
+deactivate RegisterController
+activate RegisterPage
+
+Actor -> RegisterPage : ユーザー名、メールアドレス、パスワード、パスワード（確認用）を入力する
+Actor -> RegisterPage : 「新規登録」を押下する
+RegisterPage -> RegisterController : 新規登録を要求する
+activate RegisterController
+RegisterController -> RegisterController : 入力内容を検証する
+
+alt ユーザー名、メールアドレス、パスワード、パスワード（確認用）のいずれかが未入力の場合
+    RegisterController --> RegisterPage : エラーメッセージ「すべての項目を入力してください」を表示する
+else メールアドレスの形式が不正だった場合
+    RegisterController --> RegisterPage : エラーメッセージ「メールアドレスを正しく入力してください」を表示する
+else パスワードが英数字すべて含むかつ8文字以上を満たしていない場合
+    RegisterController --> RegisterPage : エラーメッセージ「英数字すべて含みかつ8文字以上でパスワードを設定してください」を表示する
+else パスワードと確認用パスワードが一致しない場合
+    RegisterController --> RegisterPage : エラーメッセージ「パスワードが一致しません」を表示する
+else 登録済みメールアドレスだった場合
+    RegisterController --> RegisterPage : エラーメッセージ「このメールアドレスは登録済みです」を表示する
+else 入力内容に問題がない場合
+    RegisterController -> FirebaseAuth : アカウントを登録する
+    activate FirebaseAuth
+    return 登録結果
+    alt アカウント登録に失敗した場合
+        RegisterController --> RegisterPage : エラーメッセージ「ユーザー登録に失敗しました」を表示する
+        deactivate RegisterPage
+    else アカウント登録に成功した場合
+        RegisterController -> Firestore : ユーザー情報を保存する
+        activate Firestore
+        RegisterController --> LoginPage : ログイン画面を表示する
+        deactivate RegisterController
+    end
+end
+deactivate RegisterController
+@enduml

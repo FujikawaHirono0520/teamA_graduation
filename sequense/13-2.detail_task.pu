@@ -1,0 +1,28 @@
+@startuml 課題の詳細を確認する（リーダー）
+title 課題の詳細を確認する（リーダー）
+autonumber
+
+actor リーダー as Leader
+boundary AssignmentListOrManagePage
+boundary AssignmentDetailPage
+control AssignmentDetailController
+database Firestore
+
+Leader -> AssignmentListOrManagePage : 課題一覧画面から確認したい課題、または課題管理画面から確認したいユーザーを押下する
+activate AssignmentListOrManagePage
+AssignmentListOrManagePage -> AssignmentDetailController : 課題詳細の表示を要求する
+activate AssignmentDetailController
+AssignmentDetailController -> Firestore : 選択された課題の詳細情報、ユーザーごとの進捗状況、コメントを取得する
+activate Firestore
+return 取得結果
+
+alt 選択された課題が見つからない場合
+    AssignmentDetailController --> AssignmentListOrManagePage : エラーメッセージ「課題が見つかりませんでした」を表示する
+else 課題情報の取得に失敗した場合
+    AssignmentDetailController --> AssignmentListOrManagePage : エラーメッセージ「課題の取得に失敗しました」を表示する
+else 課題情報を取得できた場合
+    AssignmentDetailController --> AssignmentDetailPage : 課題の詳細情報、ユーザーごとの進捗状況、コメントを課題詳細画面に表示する
+end
+deactivate AssignmentDetailController
+deactivate AssignmentListOrManagePage
+@enduml

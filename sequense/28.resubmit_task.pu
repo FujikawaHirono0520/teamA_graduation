@@ -1,0 +1,48 @@
+@startuml 課題の再提出を依頼する
+title 課題の再提出を依頼する
+autonumber
+
+actor リーダー as Leader
+boundary AssignmentDetailPage
+boundary ResubmitReasonDialog
+control ResubmitRequestController
+database Firestore
+
+Leader -> AssignmentDetailPage : 「再提出を依頼する」を押下する
+activate AssignmentDetailPage
+AssignmentDetailPage -> ResubmitRequestController : 再提出理由の入力ダイアログの表示を要求する
+activate ResubmitRequestController
+ResubmitRequestController --> ResubmitReasonDialog : 再提出理由の入力ダイアログを表示する
+deactivate ResubmitRequestController
+activate ResubmitReasonDialog
+
+Leader -> ResubmitReasonDialog : 再提出理由を入力する
+
+alt 「キャンセル」を押下した場合
+    Leader -> ResubmitReasonDialog : 「キャンセル」を押下する
+    ResubmitReasonDialog -> ResubmitRequestController : 再提出の依頼のキャンセルを要求する
+    activate ResubmitRequestController
+    ResubmitRequestController --> AssignmentDetailPage : 再提出の依頼を実行せず、ダイアログを閉じて課題詳細画面に戻る
+    deactivate ResubmitRequestController
+else 「確定」を押下した場合
+    Leader -> ResubmitReasonDialog : 「確定」を押下する
+    ResubmitReasonDialog -> ResubmitRequestController : 再提出の依頼を要求する
+    activate ResubmitRequestController
+    alt 再提出理由が未入力の場合
+        ResubmitRequestController --> ResubmitReasonDialog : エラーメッセージ「再提出理由を入力してください」を表示する
+        deactivate ResubmitReasonDialog
+    else 再提出理由が入力されている場合
+        ResubmitRequestController -> Firestore : 再提出理由を保存し、課題の状態を再提出が必要な状態に更新する
+        activate Firestore
+        return 保存結果
+        alt 再提出の依頼処理に失敗した場合
+            ResubmitRequestController --> AssignmentDetailPage : エラーメッセージ「再提出の依頼に失敗しました」を表示する
+        else 再提出の依頼処理に成功した場合
+            ResubmitRequestController --> AssignmentDetailPage : スナックバー「（課題名）の再提出依頼をかけました」を表示する
+        end
+    end
+    deactivate ResubmitRequestController
+end
+deactivate ResubmitReasonDialog
+deactivate AssignmentDetailPage
+@enduml
