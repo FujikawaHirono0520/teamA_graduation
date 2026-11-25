@@ -23,9 +23,11 @@ public enum AssignmentStatus {
     public String cssClass() { return cssClass; }
     public String label(boolean leader) { return leader ? leaderLabel : userLabel; }
 
-    public static AssignmentStatus fromCode(String code) {
+    public static AssignmentStatus fromCode(String value) {
         for (AssignmentStatus s : values()) {
-            if (s.code.equals(code)) return s;
+            if (s.code.equals(value) || s.userLabel.equals(value) || s.leaderLabel.equals(value)) {
+                return s;
+            }
         }
         return NOT_STARTED;
     }
