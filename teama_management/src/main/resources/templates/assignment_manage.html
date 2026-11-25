@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>課題管理 - 課題管理システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <header th:replace="~{fragments/header :: header(true)}"></header>
+
+    <main class="container assignment-manage-container">
+
+        <!-- 戻る・タイトル・リーダー表示 -->
+        <div class="assignment-title-bar">
+            <div class="assignment-title-left">
+                <a th:href="@{/assignments}" class="back-link">←</a>
+                <h1>課題管理</h1>
+            </div>
+            <span class="settings-role settings-role-leader">リーダー</span>
+        </div>
+
+        <!-- 課題情報 -->
+        <section class="card team-detail-card">
+            <h2 class="assignment-manage-name" th:text="${assignment.title}">課題名</h2>
+
+            <p class="assignment-manage-info">
+                <span th:text="'対象：' + ${assignment.targetName}"></span>
+                <br>
+                <span th:text="'優先順位：' + ${assignment.priorityLabel} + '　締め切り：' + ${assignment.dueDateText}"></span>
+            </p>
+
+        </section>
+
+        <section>
+            <!-- 編集・削除 -->
+            <div class="assignment-manage-buttons">
+                <a class="assignment-manage-btn team-member-edit-btn"
+                   th:href="@{/assignments/{id}/edit(id=${assignment.id})}">編集</a>
+                <button type="button" class="assignment-manage-btn assignment-delete-btn"
+                        onclick="document.getElementById('deleteDialog').showModal()">削除</button>
+            </div>
+        </section>
+
+        <!-- ユーザー別の進捗 -->
+        <section>
+            <h2 class="assignment-progress-title">ユーザー別の進捗</h2>
+
+            <div class="assignment-progress-list" th:if="${!#lists.isEmpty(assignment.userProgress)}">
+                <div class="assignment-progress-item" th:each="user : ${assignment.userProgress}">
+                    <span class="assignment-progress-name" th:text="${user.name}">ユーザー名</span>
+                    <span class="assignment-progress-status"
+                          th:classappend="${user.statusClass}"
+                          th:text="${user.statusLabel}">未着手</span>
+                </div>
+            </div>
+
+            <p class="assignment-empty" th:if="${#lists.isEmpty(assignment.userProgress)}">
+                担当ユーザーはいません
+            </p>
+        </section>
+
+        <!-- 成功メッセージ -->
+        <div th:if="${successMessage}" class="team-result-message">
+            <span class="team-result-icon">✔</span>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- 課題削除確認ダイアログ -->
+        <dialog id="deleteDialog" class="logout-dialog assignment-delete-dialog">
+
+            <h1>
+                課題名：
+                <span th:text="${assignment.title}">課題名</span>
+            </h1>
+
+            <label>
+                この課題を削除しますか？<br>
+                提出済みの資料やコメントもすべて削除され、元に戻せません。
+            </label>
+
+            <div class="logout-dialog-buttons">
+
+                <!-- キャンセル -->
+                <button type="button"
+                        id="deleteCancelButton"
+                        class="btn logout-cancel-btn"
+                        onclick="document.getElementById('deleteDialog').close()">
+                    キャンセル
+                </button>
+
+                <!-- 削除 -->
+                <form th:action="@{/assignments/{id}/delete(id=${assignment.id})}"
+                    method="post">
+                    <button type="submit" class="btn logout-confirm-btn">
+                        削除
+                    </button>
+                </form>
+
+            </div>
+
+        </dialog>
+
+    </main>
+
+    <div th:replace="~{snackbar :: snackbar}"></div>
+
+</body>
+</html>

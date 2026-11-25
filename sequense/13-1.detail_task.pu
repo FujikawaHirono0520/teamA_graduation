@@ -1,0 +1,26 @@
+@startuml 課題の詳細を確認する（ユーザー）
+title 課題の詳細を確認する（ユーザー）
+autonumber
+
+actor ユーザー as User
+boundary AssignmentListPage
+boundary AssignmentDetailPage
+control AssignmentDetailController
+database Firestore
+
+User -> AssignmentListPage : 確認したい課題を押下する
+activate AssignmentListPage
+AssignmentListPage -> AssignmentDetailController : 課題詳細の表示を要求する
+activate AssignmentDetailController
+AssignmentDetailController -> Firestore : 選択された課題の詳細情報を取得する
+activate Firestore
+return 取得結果
+
+alt 課題情報の取得に失敗した場合
+    AssignmentDetailController --> AssignmentListPage : エラーメッセージ「課題の取得に失敗しました」を表示する
+else 課題情報を取得できた場合
+    AssignmentDetailController --> AssignmentDetailPage : 取得した課題の詳細情報を課題詳細画面に表示する
+end
+deactivate AssignmentDetailController
+deactivate AssignmentListPage
+@enduml

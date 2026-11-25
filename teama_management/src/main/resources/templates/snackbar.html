@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="snackbar" th:if="${successMessage}" class="snackbar" id="snackbar">
+  <span class="snackbar-icon">✔</span><span th:text="${successMessage}"></span>
+  <script>
+    setTimeout(function () {
+      var e = document.getElementById('snackbar');
+      if (e) { e.style.display = 'none'; }
+    }, 3000);
+  </script>
+</div>
+</body>
+</html>

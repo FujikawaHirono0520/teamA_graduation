@@ -1,0 +1,32 @@
+@startuml コメントを投稿する
+title コメントを投稿する
+autonumber
+
+actor "リーダー/ユーザー" as Actor
+boundary AssignmentDetailPage
+control CommentController
+database Firestore
+
+activate AssignmentDetailPage
+
+Actor -> AssignmentDetailPage : コメント入力欄にコメントを入力する
+Actor -> AssignmentDetailPage : 「送信」を押下する
+AssignmentDetailPage -> CommentController : コメントの投稿を要求する
+activate CommentController
+CommentController -> CommentController : 入力されたコメントを検証する
+
+alt コメントが未入力の場合
+    CommentController --> AssignmentDetailPage : エラーメッセージ「コメントを入力してください」を表示する
+else コメントが入力されている場合
+    CommentController -> Firestore : コメントを保存する
+    activate Firestore
+    return 保存結果
+    alt コメントの保存に失敗した場合
+        CommentController --> AssignmentDetailPage : エラーメッセージ「コメントの送信に失敗しました」を表示し、入力されたコメントを保持して再度送信できるようにする
+    else コメントの保存に成功した場合
+        CommentController --> AssignmentDetailPage : 入力欄を空にし、投稿したコメントを課題詳細画面に表示する
+    end
+end
+deactivate CommentController
+deactivate AssignmentDetailPage
+@enduml

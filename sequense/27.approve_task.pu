@@ -1,0 +1,42 @@
+@startuml 課題を承認する
+title 課題を承認する
+autonumber
+
+actor リーダー as Leader
+boundary AssignmentDetailPage
+boundary ApproveConfirmDialog
+control ApproveAssignmentController
+database Firestore
+
+Leader -> AssignmentDetailPage : 「承認する」を押下する
+activate AssignmentDetailPage
+AssignmentDetailPage -> ApproveAssignmentController : 承認確認を要求する
+activate ApproveAssignmentController
+ApproveAssignmentController --> ApproveConfirmDialog : 課題名と説明を承認確認ダイアログに表示する
+deactivate ApproveAssignmentController
+activate ApproveConfirmDialog
+
+alt 「キャンセル」を押下した場合
+    Leader -> ApproveConfirmDialog : 「キャンセル」を押下する
+    ApproveConfirmDialog -> ApproveAssignmentController : 承認のキャンセルを要求する
+    activate ApproveAssignmentController
+    ApproveAssignmentController --> AssignmentDetailPage : 承認を実行せず、承認確認ダイアログを閉じて課題詳細画面に戻る
+    deactivate ApproveAssignmentController
+else 「承認」を押下した場合
+    Leader -> ApproveConfirmDialog : 「承認」を押下する
+    ApproveConfirmDialog -> ApproveAssignmentController : 承認を要求する
+    deactivate ApproveConfirmDialog
+    activate ApproveAssignmentController
+    ApproveAssignmentController -> Firestore : 対象の課題を承認済みの状態に更新して保存する
+    activate Firestore
+    return 保存結果
+    alt 課題の承認に失敗した場合
+        ApproveAssignmentController --> AssignmentDetailPage : エラーメッセージ「課題の承認に失敗しました」を表示する
+        else 課題の承認に成功した場合
+        ApproveAssignmentController --> AssignmentDetailPage : スナックバー「（課題名）を承認しました」を表示する
+    end
+    deactivate ApproveAssignmentController
+end
+deactivate ApproveConfirmDialog
+deactivate AssignmentDetailPage
+@enduml

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>課題登録 - 課題管理システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <header th:replace="~{fragments/header :: header(true)}"></header>
+
+    <main class="assignment-create-wrapper">
+
+        <!-- 戻る・タイトル・リーダーバッジ -->
+        <div class="assignment-title-bar">
+            <div class="assignment-title-left">
+                <a th:href="@{/assignments}" class="back-link">&larr;</a>
+                <h1>課題登録</h1>
+            </div>
+            <span class="assignment-role-badge">リーダー</span>
+        </div>
+
+        <form th:action="@{/assignments/create}" th:object="${form}" method="post"
+              enctype="multipart/form-data" novalidate>
+
+            <!-- 課題名 -->
+            <div class="assignment-field">
+                <label for="title">課題名</label>
+                <input type="text" id="title" class="assignment-input"
+                       th:field="*{title}" placeholder="例）第4回レポート課題">
+                <p class="assignment-error" th:if="${titleErrorMessage}"
+                   th:text="'※' + ${titleErrorMessage}"></p>
+            </div>
+
+            <!-- 対象（チーム / 個人） -->
+            <div class="assignment-field">
+                <label>対象</label>
+                <div class="target-toggle-group">
+                    <label class="target-pill"
+                           th:classappend="${form.targetType == 'team'} ? ' is-active' : ''">
+                        <input type="radio" name="targetType" value="team"
+                               th:field="*{targetType}"
+                               onchange="onTargetTypeChange()">
+                        <span>チーム</span>
+                    </label>
+                    <label class="target-pill"
+                           th:classappend="${form.targetType == 'individual'} ? ' is-active' : ''">
+                        <input type="radio" name="targetType" value="individual"
+                               th:field="*{targetType}"
+                               onchange="onTargetTypeChange()">
+                        <span>個人</span>
+                    </label>
+                </div>
+                <p class="assignment-error" th:if="${targetErrorMessage}"
+                   th:text="'※' + ${targetErrorMessage}"></p>
+            </div>
+
+            <!-- チーム選択（チーム選択時に表示） -->
+            <div class="assignment-field" id="teamTargetSection"
+                 th:style="${form.targetType == 'team'} ? '' : 'display: none;'">
+                <label for="teamId">チーム</label>
+                <select id="teamId" class="assignment-select" th:field="*{teamId}">
+                    <option value="">チームを選択してください</option>
+                    <option th:each="team : ${leaderTeams}"
+                            th:value="${team.id}"
+                            th:text="${team.name}"></option>
+                </select>
+            </div>
+
+            <!-- 名前で検索・選択（個人選択時に表示） -->
+            <div class="assignment-field" id="individualTargetSection"
+                 th:style="${form.targetType == 'individual'} ? '' : 'display: none;'">
+
+                <label for="userSearchInput">名前で検索（複数選択可）</label>
+
+                <div class="user-search-box">
+                    <input type="text" id="userSearchInput"
+                           class="assignment-input"
+                           placeholder="名前を入力"
+                           oninput="filterCandidates()"
+                           autocomplete="off">
+
+                    <ul id="candidateList"
+                        class="user-candidate-list"
+                        style="display: none;"></ul>
+                </div>
+
+                <!-- 検索エラー -->
+                <p id="searchError" class="search-error"></p>
+
+                <!-- 選択済みユーザーチップ -->
+                <div id="selectedUsersContainer" class="selected-user-chips">
+                    <div class="selected-user-chip"
+                         th:each="userId : ${form.assigneeIds}"
+                         th:data-uid="${userId}">
+
+                        <span class="chip-user-name" th:text="${userId}"></span>
+                        <span class="chip-user-id" th:text="'ID:' + ${userId}"></span>
+
+                        <button type="button" class="chip-remove-btn"
+                                onclick="removeUserChip(this)"
+                                aria-label="削除">&times;</button>
+
+                        <input type="hidden" name="assigneeIds" th:value="${userId}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 締め切り日時 -->
+            <div class="assignment-field">
+                <label for="dueDate">締め切り日時</label>
+                <input type="datetime-local" id="dueDate"
+                       class="assignment-input" th:field="*{dueDate}">
+                <p class="assignment-error" th:if="${dueDateErrorMessage}"
+                   th:text="'※' + ${dueDateErrorMessage}"></p>
+            </div>
+
+            <!-- 優先順位 -->
+            <div class="assignment-field">
+                <label for="priority">優先順位</label>
+                <select id="priority" class="assignment-select" th:field="*{priority}">
+                    <option value="高">高</option>
+                    <option value="中" selected>中</option>
+                    <option value="低">低</option>
+                </select>
+            </div>
+
+            <!-- 説明・添付資料 -->
+            <div class="assignment-field">
+                <label for="description">説明・添付資料</label>
+                <textarea id="description" class="assignment-textarea"
+                          th:field="*{description}" rows="3"
+                          placeholder="内容を入力（ファイルを添付）"></textarea>
+                <input type="file" id="attachmentFile"
+                       class="assignment-file-input" th:field="*{attachmentFile}">
+            </div>
+
+            <!-- 登録失敗エラー -->
+            <p class="assignment-error" th:if="${errorMessage}"
+               th:text="'※' + ${errorMessage}"></p>
+
+            <!-- キャンセル・登録ボタン -->
+            <div class="assignment-action-row">
+                <a th:href="@{/assignments}" class="btn-cancel-red">キャンセル</a>
+                <button type="submit" class="btn-register-green">登録</button>
+            </div>
+
+            <p class="assignment-note">※名前の候補は、このチームのユーザーだけ</p>
+
+        </form>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- ユーザー検索・選択処理 -->
+    <script th:inline="javascript">
+
+        // 検索先URL
+        const searchUrl = /*[[@{/assignments/create/search}]]*/
+                  "/assignments/create/search";
+
+        // 検索リクエストの管理
+        let searchRequestId = 0;
+
+        function onTargetTypeChange() {
+
+            const selected = document.querySelector('input[name="targetType"]:checked');
+            const pills = document.querySelectorAll('.target-pill');
+
+            pills.forEach(p => p.classList.remove('is-active'));
+
+            if (selected) {
+                const parentLabel = selected.closest('.target-pill');
+                if (parentLabel) parentLabel.classList.add('is-active');
+            }
+
+            const isTeam = selected && selected.value === 'team';
+            const isIndividual = selected && selected.value === 'individual';
+
+            const teamSec = document.getElementById('teamTargetSection');
+            const indSec = document.getElementById('individualTargetSection');
+
+            if (teamSec) teamSec.style.display = isTeam ? '' : 'none';
+            if (indSec) indSec.style.display = isIndividual ? '' : 'none';
+        }
+
+        // ユーザー検索
+        async function filterCandidates() {
+
+            const input = document.getElementById('userSearchInput');
+            const listEl = document.getElementById('candidateList');
+            const searchError = document.getElementById('searchError');
+            const keyword = input.value.trim();
+
+            // 前の検索リクエストを無効にする
+            const requestId = ++searchRequestId;
+
+            // 前の検索結果とエラーを消す
+            listEl.innerHTML = '';
+            searchError.textContent = '';
+
+            // 入力が空の場合は検索しない
+            if (!keyword) {
+                listEl.style.display = 'none';
+                return;
+            }
+
+            try {
+
+                // Controllerからユーザーを検索する
+                const response = await fetch(
+                    searchUrl + "?keyword=" + encodeURIComponent(keyword)
+                );
+
+                if (!response.ok) {
+                    throw new Error("検索に失敗しました");
+                }
+
+                const users = await response.json();
+
+                // 古い検索結果は表示しない
+                if (requestId !== searchRequestId) {
+                    return;
+                }
+
+                // 重複したユーザーを表示しない
+                const displayedIds = [];
+
+                // 追加できるユーザーがいるか確認する
+                let foundUser = false;
+
+                users.forEach(user => {
+
+                    // すでに表示したユーザーの場合
+                    if (displayedIds.includes(user.id)) {
+                        return;
+                    }
+
+                    displayedIds.push(user.id);
+
+                    // すでに選択されているユーザーの場合
+                    const selectedInputs =
+                        document.querySelectorAll(
+                            '#selectedUsersContainer input[name="assigneeIds"]'
+                        );
+
+                    const alreadySelected = Array.from(selectedInputs)
+                        .some(selected => selected.value === user.id);
+
+                    if (alreadySelected) {
+                        return;
+                    }
+
+                    foundUser = true;
+
+                    // 検索結果の枠
+                    const li = document.createElement('li');
+
+                    const item = document.createElement('button');
+                    item.type = 'button';
+                    item.className = 'team-search-item';
+
+                    // ユーザー名
+                    const name = document.createElement('span');
+                    name.className = 'user-name';
+                    name.textContent = user.name;
+
+                    // ユーザーID
+                    const id = document.createElement('span');
+                    id.className = 'user-id';
+                    id.textContent = 'ユーザーID：' + user.id;
+
+                    // 枠全体をクリックするとユーザーを選択
+                    item.addEventListener('click', function() {
+                        selectCandidate(user.name, user.id);
+                    });
+
+                    // 検索結果の枠に名前とIDを追加
+                    item.appendChild(name);
+                    item.appendChild(id);
+
+                    li.appendChild(item);
+                    listEl.appendChild(li);
+                });
+
+                // 検索結果がない場合
+                if (!foundUser) {
+                    searchError.textContent =
+                        "検索に該当するユーザーが見つかりません";
+                    listEl.style.display = 'none';
+                } else {
+                    listEl.style.display = 'block';
+                }
+
+            } catch (error) {
+
+                if (requestId !== searchRequestId) {
+                    return;
+                }
+
+                console.error("ユーザー検索に失敗しました", error);
+
+                listEl.style.display = 'none';
+                searchError.textContent =
+                    "ユーザーの検索に失敗しました";
+            }
+        }
+
+        // ユーザーを選択する
+        function selectCandidate(name, uid) {
+
+            const container = document.getElementById('selectedUsersContainer');
+            const input = document.getElementById('userSearchInput');
+            const listEl = document.getElementById('candidateList');
+            const searchError = document.getElementById('searchError');
+
+            const selectedInputs =
+                container.querySelectorAll('input[name="assigneeIds"]');
+
+            // すでに選択されていない場合だけ追加
+            const alreadySelected = Array.from(selectedInputs)
+                .some(selected => selected.value === uid);
+
+            if (!alreadySelected) {
+
+                const chip = document.createElement('div');
+                chip.className = 'selected-user-chip';
+                chip.setAttribute('data-uid', uid);
+
+                const userName = document.createElement('span');
+                userName.className = 'chip-user-name';
+                userName.textContent = name;
+
+                const userId = document.createElement('span');
+                userId.className = 'chip-user-id';
+                userId.textContent = 'ID:' + uid;
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'chip-remove-btn';
+                removeButton.textContent = '×';
+                removeButton.setAttribute('aria-label', '削除');
+                removeButton.onclick = function() {
+                    removeUserChip(removeButton);
+                };
+
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'assigneeIds';
+                hidden.value = uid;
+
+                chip.appendChild(userName);
+                chip.appendChild(userId);
+                chip.appendChild(removeButton);
+                chip.appendChild(hidden);
+
+                container.appendChild(chip);
+            }
+
+            // 検索欄と検索結果を初期化
+            input.value = '';
+            listEl.style.display = 'none';
+            listEl.innerHTML = '';
+            searchError.textContent = '';
+        }
+
+        // 選択したユーザーを削除する
+        function removeUserChip(btn) {
+            const chip = btn.closest('.selected-user-chip');
+            if (chip) chip.remove();
+        }
+
+        // 画面外をクリックしたときに検索候補を閉じる
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-search-box')) {
+                const listEl = document.getElementById('candidateList');
+                if (listEl) listEl.style.display = 'none';
+            }
+        });
+
+        // 初期表示時の切り替え状態を反映する
+        onTargetTypeChange();
+
+    </script>
+
+</body>
+
+</html>

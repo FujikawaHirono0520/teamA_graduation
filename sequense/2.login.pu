@@ -1,0 +1,38 @@
+@startuml ログインする
+title ログインする
+autonumber
+
+actor "リーダー/ユーザー" as Actor
+boundary LoginPage
+boundary HomePage
+control LoginController
+' Firebase Authenticationは認証サービスなので、participantで表記
+participant "Firebase Authentication" as FirebaseAuth
+
+activate LoginController
+LoginController --> LoginPage : ログイン画面を表示する
+deactivate LoginController
+activate LoginPage
+
+Actor -> LoginPage : メールアドレスとパスワードを入力する
+Actor -> LoginPage : 「ログイン」ボタンを押す
+LoginPage -> LoginController : ログインを要求する
+activate LoginController
+
+alt メールアドレスまたはパスワードが未入力の場合
+    LoginController --> LoginPage : エラーメッセージ「メールアドレスとパスワードを入力してください」を表示する
+else 入力済みの場合
+    LoginController -> FirebaseAuth : 認証する
+    activate FirebaseAuth
+    return 認証結果
+    alt メールアドレスまたはパスワードが違う場合
+        LoginController --> LoginPage : エラーメッセージ「メールアドレスまたはパスワードが違います」を表示する
+    else ログインに失敗した場合
+        LoginController --> LoginPage : エラーメッセージ「ログインに失敗しました」を表示する
+    else 認証に成功した場合
+        LoginController --> HomePage : ホーム画面を表示する
+    end
+end
+deactivate LoginController
+deactivate LoginPage
+@enduml

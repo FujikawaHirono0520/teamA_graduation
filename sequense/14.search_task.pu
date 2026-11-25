@@ -1,0 +1,34 @@
+@startuml 課題を検索・絞り込む
+title 課題を検索・絞り込む
+autonumber
+
+actor "リーダー/ユーザー" as Actor
+boundary AssignmentListPage
+control AssignmentSearchController
+database Firestore
+
+activate AssignmentListPage
+
+opt 検索条件を入力する場合
+    Actor -> AssignmentListPage : 検索欄に検索条件を入力する（ユーザーは課題名、リーダーは課題名または担当者名）
+end
+
+opt 絞り込み条件を選択する場合
+    Actor -> AssignmentListPage : 絞り込み条件を選択する
+end
+
+Actor -> AssignmentListPage : 「検索」を押下する
+AssignmentListPage -> AssignmentSearchController : 課題の検索を要求する
+activate AssignmentSearchController
+AssignmentSearchController -> Firestore : 入力された検索条件と選択された絞り込み条件に該当する課題を取得する
+activate Firestore
+return 取得結果
+
+alt 検索条件と絞り込み条件に該当する課題がない場合
+    AssignmentSearchController --> AssignmentListPage : メッセージ「条件に合致する課題がありません」を表示する
+else 検索条件と絞り込み条件に該当する課題がある場合
+    AssignmentSearchController --> AssignmentListPage : 取得した課題を課題一覧画面に表示する
+end
+deactivate AssignmentSearchController
+deactivate AssignmentListPage
+@enduml
