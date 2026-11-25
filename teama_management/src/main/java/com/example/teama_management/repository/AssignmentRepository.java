@@ -1,5 +1,4 @@
 package com.example.teama_management.repository;
-
 import com.example.teama_management.model.AssignmentItem;
 import com.example.teama_management.model.AssignmentStatus;
 import com.google.cloud.Timestamp;
@@ -7,6 +6,7 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -43,6 +43,7 @@ public class AssignmentRepository {
         List<QueryDocumentSnapshot> docs = firestore.collection("assignments")
                 .whereEqualTo("teamId", teamId)
                 .get().get().getDocuments();
+
         if (docs.isEmpty()) {
             return List.of();
         }
@@ -68,15 +69,27 @@ public class AssignmentRepository {
 
             String title = nz(d.getString("title"));
             String assigneeDisplay = teamTarget ? "チーム全員" : joinNames(ids, userNames);
-            AssignmentStatus st = AssignmentStatus.fromCode(d.getString("status"));
+
+            // ステータスを取得する
+            AssignmentStatus st;
+
+            if (leader) {
+                // リーダーは課題全体のステータスを取得する
+                st = AssignmentStatus.fromCode(d.getString("status"));
+            } else {
+                // ユーザーは自分個人の進捗状況を取得する
+                st = findUserProgressStatus(d.getId(), uid);
+            }
 
             // 検索：ユーザーは課題名、リーダーは課題名または担当者名
             boolean match = word.isEmpty()
                     || title.toLowerCase().contains(word)
                     || (leader && assigneeDisplay.toLowerCase().contains(word));
+
             if (!match) {
                 continue;
             }
+
             // 絞り込み
             if (!"all".equals(status) && !st.code().equals(status)) {
                 continue;
@@ -84,9 +97,11 @@ public class AssignmentRepository {
 
             Timestamp deadline = d.getTimestamp("dueDate");
             Timestamp updated = d.getTimestamp("updatedAt");
+
             if (updated == null) {
                 updated = d.getTimestamp("createdAt");   // 更新日がなければ登録日を使う
             }
+
             items.add(new AssignmentItem(d.getId(), title, st, format(deadline), format(updated),
                     assigneeDisplay, millis(deadline), millis(updated)));
         }
@@ -97,12 +112,33 @@ public class AssignmentRepository {
         } else {
             items.sort(Comparator.comparingLong(AssignmentItem::deadlineMillis));
         }
+
         return items;
+    }
+
+    // ユーザーごとの進捗状況を取得する
+    private AssignmentStatus findUserProgressStatus(
+            String assignmentId, String userId) throws Exception {
+
+        QuerySnapshot result = firestore.collection("taskProgress")
+                .whereEqualTo("assignmentId", assignmentId)
+                .whereEqualTo("userId", userId)
+                .get()
+                .get();
+
+        if (result.isEmpty()) {
+            return AssignmentStatus.NOT_STARTED;
+        }
+
+        String status = result.getDocuments().get(0).getString("status");
+
+        return AssignmentStatus.fromCode(status);
     }
 
     private List<String> assigneeIds(QueryDocumentSnapshot d) {
         List<String> ids = new ArrayList<>();
         Object value = d.get("assigneeIds");
+
         if (value instanceof List<?> list) {
             for (Object o : list) {
                 if (o instanceof String s) {
@@ -110,37 +146,47 @@ public class AssignmentRepository {
                 }
             }
         }
+
         return ids;
     }
 
     private Map<String, String> loadUserNames(Set<String> ids) throws Exception {
         Map<String, String> map = new HashMap<>();
+
         if (ids.isEmpty()) {
             return map;
         }
+
         DocumentReference[] refs = ids.stream()
                 .map(id -> firestore.collection("users").document(id))
                 .toArray(DocumentReference[]::new);
+
         for (DocumentSnapshot u : firestore.getAll(refs).get()) {
             if (u.exists()) {
                 String name = nz(u.getString("username"));
+
                 if (name.isEmpty()) {
                     name = nz(u.getString("name"));
                 }
+
                 map.put(u.getId(), name);
             }
         }
+
         return map;
     }
 
     private String joinNames(List<String> ids, Map<String, String> userNames) {
         List<String> names = new ArrayList<>();
+
         for (String id : ids) {
             String name = userNames.getOrDefault(id, "");
+
             if (!name.isEmpty()) {
                 names.add(name);
             }
         }
+
         return names.isEmpty() ? "未設定" : String.join(", ", names);
     }
 
@@ -152,6 +198,7 @@ public class AssignmentRepository {
         if (ts == null) {
             return "－";
         }
+
         return LocalDateTime.ofInstant(ts.toDate().toInstant(), ZONE).format(FORMAT);
     }
 
