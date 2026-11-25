@@ -222,6 +222,12 @@ public class AssignmentDetailRepository {
                             "submittedAt", submittedAt)
                     .get();
         }
+
+        // 課題のステータスを承認待ちに変更する
+        firestore.collection("assignments")
+                .document(assignmentId)
+                .update("status", "承認待ち")
+                .get();
     }
 
     // 優先度の表示名を取得する
