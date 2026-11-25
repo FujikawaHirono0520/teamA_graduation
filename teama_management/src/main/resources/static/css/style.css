@@ -133,10 +133,107 @@ input[type=password] {
     box-sizing: border-box;
 }
 
+
+/* ===== パスワード再設定メール送信完了画面 ===== */
+
+.reset-sent-container {
+    max-width: 480px;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.reset-sent-title {
+    margin: 0 0 18px;
+    font-size: 1.1rem;
+}
+
+/* 送信完了メッセージ */
+.reset-sent-message {
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.reset-sent-message p {
+    margin: 8px 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+/* 注意事項 */
+.reset-sent-notice {
+    padding: 12px;
+    margin-bottom: 16px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.reset-sent-notice p {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.reset-sent-notice ul {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 0.85rem;
+    line-height: 1.7;
+}
+
+/* もう一度送るボタン */
+.reset-resend-form {
+    margin: 0;
+}
+
+.reset-resend-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #3399ff;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.reset-resend-btn:disabled {
+    background: #bbb;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+/* ログインに戻るボタン */
+.reset-login-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 2px solid #3399ff;
+    border-radius: 8px;
+    background: #fff;
+    color: #3399ff;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.reset-login-btn:hover {
+    background: #f0f8ff;
+}
+
+
 /* ===== プロフィール画面 ===== */
 
 /* ユーザー情報カード */
-.profile-card {
+.settings-card {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -150,7 +247,7 @@ input[type=password] {
 }
 
 /* プロフィールアイコン */
-.profile-icon {
+.settings-icon {
     width: 64px;
     height: 64px;
     flex-shrink: 0;
@@ -166,25 +263,25 @@ input[type=password] {
 }
 
 /* ユーザー情報 */
-.profile-info {
+.settings-info {
     flex: 1;
     min-width: 0;
 }
 
-.profile-name {
+.settings-name {
     margin: 0 0 8px;
     font-size: 1rem;
     font-weight: bold;
 }
 
-.profile-id {
+.settings-id {
     margin: 0;
     color: #555;
     font-size: 0.8rem;
 }
 
 /* 編集ボタン */
-.profile-edit-btn {
+.settings-edit-btn {
     align-self: flex-start;
     padding: 7px 18px;
     border: 1px solid #3399ff;
@@ -198,23 +295,22 @@ input[type=password] {
 }
 
 /* セクション見出し */
-.profile-section-title {
+.settings-section-title {
     margin: 14px 0 8px;
     font-size: 0.9rem;
     font-weight: bold;
 }
 
 /* メニュー一覧 */
-.profile-menu {
+.settings-menu {
     border: 1px solid #ddd;
     margin-bottom: 28px;
 }
 
-.profile-menu-item {
+.settings-menu-item {
     min-height: 50px;
     padding: 0 12px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
     border-bottom: 1px solid #ddd;
@@ -223,20 +319,28 @@ input[type=password] {
     font-size: 0.9rem;
 }
 
-.profile-menu-item:last-child {
+.settings-menu-item:last-child {
     border-bottom: none;
 }
 
 /* 右側の矢印 */
-.profile-menu-arrow {
+.settings-menu-arrow {
     color: #888;
     font-size: 1.2rem;
 }
 
+/* チーム名 */
+.settings-menu-item > span:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
 /* チームの役割 */
-.profile-role {
-    min-width: 82px;
-    padding: 4px 10px;
+.settings-role {
+    width: 65px;
+    flex-shrink: 0;
+    margin-right: 15px;
+    padding: 4px 0;
     border-radius: 18px;
     color: #fff;
     text-align: center;
@@ -245,16 +349,16 @@ input[type=password] {
     box-sizing: border-box;
 }
 
-.profile-role-user {
+.settings-role-user {
     background: #4b91dc;
 }
 
-.profile-role-leader {
+.settings-role-leader {
     background: #ed7b19;
 }
 
 /* ログアウトボタン */
-.profile-logout {
+.settings-logout {
     display: block;
     width: 100%;
     padding: 12px;
@@ -267,6 +371,12 @@ input[type=password] {
     text-align: center;
     text-decoration: none;
     box-sizing: border-box;
+}
+/* ログアウトボタンのホバー */
+.settings-logout:hover {
+    background: #f00000;
+    color: #fff;
+    cursor: pointer;
 }
 
 /* 編集画面の確定ボタン */
@@ -286,7 +396,7 @@ input[type=password] {
 /* ===== プロフィール画面のサイズ調整 ===== */
 
 /* 画面全体 */
-.profile-page {
+.settings-page {
     width: 100%;
     max-width: none;
     min-height: 100vh;
@@ -297,23 +407,12 @@ input[type=password] {
     overflow: hidden;
 }
 
-/* 設定画面のヘッダー */
-.profile-header {
-    position: relative;
-    width: 100%;
-    min-height: 66px;
-    padding: 14px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
-}
 
-.profile-header-title {
+.settings-header-title {
     font-size: 1rem;
 }
 
-.profile-header-userid {
+.settings-header-userid {
     position: absolute;
     right: 6px;
     bottom: 2px;
@@ -322,7 +421,7 @@ input[type=password] {
 }
 
 /* 設定画面の内容 */
-.profile-container {
+.settings-container {
     width: 100%;
     max-width: 480px;
     margin: 0 auto;
@@ -330,19 +429,19 @@ input[type=password] {
     box-sizing: border-box;
 }
 
-.profile-container h1 {
+.settings-container h1 {
     margin: 0 0 14px;
     font-size: 1.1rem;
 }
 
 /* ユーザー情報カード */
-.profile-card {
+.settings-card {
     width: 100%;
 }
 
 
 /* ユーザー名編集時の入力欄 */
-.profile-info input[type=text] {
+.settings-info input[type=text] {
     width: 100%;
     max-width: 150px;
     padding: 10px;
@@ -354,7 +453,7 @@ input[type=password] {
 }
 
 /* 編集・確定ボタン */
-.profile-edit-btn {
+.settings-edit-btn {
     align-self: flex-start;
     min-width: 65px;
     padding: 7px 16px;
@@ -411,7 +510,7 @@ input[type=password] {
     color: #111;
 }
 
-/* リーダーバッジ（既存の .profile-role-leader と同系色） */
+/* リーダーバッジ（既存の .settings-role-leader と同系色） */
 .assignment-role-badge {
     display: inline-block;
     padding: 4px 14px;
@@ -625,4 +724,551 @@ input[type=password] {
     margin-top: 10px;
     font-size: 0.78rem;
     color: #e60000;
+}
+
+/* ===== チーム作成画面の入力欄 ===== */
+
+
+/* チーム名・ユーザー検索のラベル */
+.team-create-container label {
+    margin-top: 14px;
+}
+
+/* チーム名・ユーザー検索の入力欄 */
+.team-create-container input[type=text] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin-top: 4px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+
+/* ===== ユーザー検索結果 ===== */
+
+/* 検索結果全体の表示位置 */
+.team-search-results {
+    width: 100%;
+    margin-top: 2px;
+}
+
+/* 検索結果1件分のデザイン */
+.team-search-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 34px;
+    padding: 6px 12px;
+    border: 1px solid #aaa;
+    border-radius: 7px;
+    background: #f5f5f5;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* 検索結果にマウスを乗せたとき */
+.team-search-item:hover {
+    background: #e5e5e5;
+}
+
+/* 検索結果のユーザー名 */
+.team-search-item .user-name {
+    color: #333;
+}
+
+/* 検索結果のユーザーID */
+.team-search-item .user-id {
+    color: #555;
+    font-size: 0.75rem;
+}
+
+
+/* ===== 追加するユーザー一覧 ===== */
+
+/* 追加するユーザー一覧の表示位置 */
+.team-member-area {
+    margin-top: 30px;
+}
+
+/* 追加するユーザーの見出し */
+.team-member-area h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+/* 追加したユーザーを縦に並べる */
+.team-selected-members {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 2px;
+}
+
+/* 追加したユーザー1人分の表示 */
+.team-selected-member {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    min-width: 230px;
+    max-width: 100%;
+    padding: 5px 12px;
+    background: #eee;
+    border-radius: 22px;
+    box-sizing: border-box;
+    font-size: 0.85rem;
+}
+
+/* 追加したユーザーのID */
+.team-selected-member small {
+    color: #555;
+    font-size: 0.7rem;
+}
+
+/* 追加したユーザーを削除するボタン */
+.team-selected-member button {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+
+/* ===== チーム作成画面のボタン ===== */
+
+/* キャンセルと作成ボタンを横並びにする */
+.team-create-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+}
+
+/* キャンセル・作成ボタン共通のデザイン */
+.team-cancel-btn,
+.team-submit-btn {
+    width: 50%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+/* キャンセルボタン（赤色） */
+.team-cancel-btn {
+    background: #e60000;
+    cursor: pointer;
+}
+
+/* 作成ボタン（緑色） */
+.team-submit-btn {
+    background: #009900;
+    cursor: pointer;
+}
+
+/* ボタンにマウスを乗せたとき */
+.team-cancel-btn:hover,
+.team-submit-btn:hover {
+    opacity: 0.8;
+}
+
+/* リーダー表示 */
+.team-leader-badge {
+    margin-left: auto;
+    padding: 5px 13px;
+    background: #ed7d16;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+/* チーム名未入力・Controllerからのエラー */
+.team-create-container .error {
+    color: #e60000;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+/* ユーザー検索で該当者がいない場合 */
+.search-error {
+    color: #009900;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+
+/* チームの役割表示 */
+.team-role-badge {
+    display: inline-block;
+    min-width: 65px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.75rem;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* ===== ログアウト確認ダイアログ ===== */
+
+.logout-dialog {
+    width: 400px;
+    max-width: calc(100% - 32px);
+    height: 200px;
+    padding: 28px 32px;
+    box-sizing: border-box;
+    border: 3px solid #555;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.logout-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.logout-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.25);
+}
+/* ボタン配置 */
+.logout-dialog-buttons {
+    display: flex;
+    width: 100%;
+    gap: 24px;
+    align-items: center;
+}
+
+/* キャンセルボタンとフォームを均等にする */
+.logout-dialog-buttons > button,
+.logout-dialog-buttons > form {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 0;
+}
+
+/* フォーム */
+.logout-dialog-buttons form {
+    margin: 0;
+    padding: 0;
+}
+
+/* キャンセル */
+.logout-cancel-btn {
+    background: #aaa;
+}
+
+/* ログアウト */
+.logout-confirm-btn {
+    background: #e60000;
+}
+
+/* ホバー */
+.logout-cancel-btn:hover {
+    background: #888;
+}
+
+.logout-confirm-btn:hover {
+    background: #c90000;
+}
+
+/* 課題一覧画面 */
+a.app-title { display: block; color: #fff; text-decoration: none; }
+.btn-link { display: block; text-align: center; text-decoration: none; box-sizing: border-box; }
+.btn-outline-green { background: #fff; color: #090; border: 2px solid #090; }
+
+.no-team { text-align: center; padding-top: 30vh; }
+.no-team-title { font-weight: bold; margin-bottom: 4px; }
+.no-team-sub { color: #777; font-size: 0.85rem; margin-bottom: 24px; }
+
+.badge { display: inline-block; padding: 2px 12px; border-radius: 12px; color: #fff; font-size: 0.75rem; font-weight: bold; }
+.badge-user { background: #4a90d9; }
+.badge-leader { background: #e07b1a; }
+
+.team-switch { border: 1px solid #888; border-radius: 6px; background: #f5f5f5; margin-bottom: 10px; }
+.team-switch summary { display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer; list-style: none; font-weight: bold; }
+.team-switch summary::-webkit-details-marker { display: none; }
+.team-switch summary .badge { margin-left: auto; }
+.team-menu { background: #fff; border: 1px solid #888; border-radius: 6px; margin: 0 8px 8px; padding: 6px 10px; }
+.team-item { display: flex; align-items: center; gap: 8px; padding: 10px 0; color: #000; text-decoration: none; }
+.team-item .badge { margin-left: auto; }
+.team-item .check { width: 1.2em; }
+.team-link { display: block; padding: 10px 0; color: #4a7fd9; text-decoration: none; font-size: 0.9rem; }
+
+.search-row { display: flex; gap: 8px; }
+.search-row input[type=text] { flex: 1; margin-top: 0; }
+.btn-search { padding: 0 18px; border: none; border-radius: 4px; background: #bbb; color: #fff; font-weight: bold; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+.chip input { display: none; }
+.chip span { display: inline-block; padding: 4px 12px; border: 1px solid #090; border-radius: 14px; background: #fff; color: #090; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+.chip input:checked + span { background: #090; color: #fff; }
+
+.card { display: block; background: #f4f4f4; border: 1px solid #e3e3e3; border-radius: 6px; padding: 12px; margin-bottom: 10px; color: #000; text-decoration: none; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.card-title { font-weight: bold; }
+.card-sub { color: #777; font-size: 0.8rem; margin-top: 8px; }
+.status { padding: 2px 12px; border-radius: 12px; color: #fff; font-size: 0.75rem; font-weight: bold; white-space: nowrap; }
+.st-gray { background: #999; }
+.st-orange { background: #f5a623; }
+.st-blue { background: #4a90d9; }
+.st-red { background: #e00000; }
+.st-green { background: #2e9e3e; }
+.empty { text-align: center; margin-top: 60px; }
+
+.fab { position: fixed; right: 18px; bottom: 24px; width: 52px; height: 52px; border-radius: 50%; background: #ff8c00; color: #fff; font-size: 2rem; line-height: 52px; text-align: center; text-decoration: none; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); }
+.snackbar {position: fixed; left: 50%; transform: translateX(-50%); bottom: 40px; width: 310px; max-width: calc(100% - 40px); display: flex;
+    gap: 8px; align-items: center; background: #fff; border-left: 5px solid #2e9e3e; padding: 10px 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); box-sizing: border-box;}
+
+.snackbar-icon {color: #fff; background: #009900; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;}
+
+/* チーム詳細画面 */
+.team-detail-container {
+    max-width: 480px;
+}
+
+/* チーム情報カード */
+.team-detail-card {
+    margin-top: 14px;
+    background: #efefef;
+    border: 1px solid #999;
+    border-radius: 7px;
+}
+
+/* チームID・招待コード */
+.team-detail-card .card-sub {
+    color: #333333;
+}
+
+/* チーム名 */
+.team-detail-name {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* 招待コード */
+.team-invite-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+/* コピー完了メッセージ */
+.team-detail-card .success {
+    margin: 8px 0 0;
+    color: #009900;
+    font-size: 0.8rem;
+}
+
+/* メンバー一覧のタイトル */
+.team-detail-member-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 0 8px;
+}
+
+.team-detail-member-title h2 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* 編集ボタン */
+.team-member-edit-btn {
+    align-self: flex-start;
+    padding: 6px 24px;
+    border: none;
+    border-radius: 7px;
+    background: #ff8000;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.team-member-edit-btn:hover {
+    opacity: 0.8;
+}
+
+/* メンバー一覧 */
+.team-detail-members {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* メンバー1人分 */
+.team-detail-member {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 6px 10px;
+    border: 1px solid #999;
+    border-radius: 7px;
+    background: #efefef;
+    box-sizing: border-box;
+}
+
+/* メンバー名 */
+.team-detail-member-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+/* メンバーID */
+.team-detail-member-id {
+    color: #555;
+    font-size: 0.7rem;
+}
+
+/* メンバーの役割 */
+.team-detail-member .settings-role {
+    min-width: 65px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* メンバーメニュー */
+.team-member-menu {
+    border: none;
+    background: transparent;
+    color: #777;
+    font-size: 1.2rem;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/* チーム削除ボタン */
+.team-delete-btn {
+    display: block;
+    width: 100%;
+    height: 36px;
+    margin-top: 60px;
+    padding: 6px;
+    border: 2px solid #f00000;
+    border-radius: 10px;
+    background: #fff;
+    color: #e60000;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.team-delete-btn:hover {
+    background: #e60000;
+    color: #fff;
+}
+
+/* チーム操作の成功メッセージ */
+.team-result-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 90%;
+    margin: 20px auto;
+    padding: 8px 10px;
+    border: 1px solid #cccccc;
+    border-left: 5px solid #009900;
+    background: #ffffff;
+    box-sizing: border-box;
+    font-size: 0.75rem;
+}
+
+.team-result-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #009900;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* チーム操作のエラーメッセージ */
+.team-error-message {
+    margin: 20px auto;
+    color: #ff3333;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+/* チーム編集画面 */
+.team-edit-container {
+    max-width: 480px;
+}
+
+.team-edit-field {
+    margin: 20px 0;
+}
+
+.team-edit-member-area {
+    margin-top: 20px;
+}
+
+.team-edit-member-area h2 {
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.team-edit-selected {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.team-edit-member {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 190px;
+    padding: 5px 12px;
+    border: 1px solid #999;
+    border-radius: 20px;
+    background: #efefef;
+    font-size: 0.8rem;
+}
+
+.team-edit-member small {
+    color: #555;
+    font-size: 0.65rem;
+}
+
+.team-edit-remove {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    color: #777;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.team-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }

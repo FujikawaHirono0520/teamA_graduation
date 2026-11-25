@@ -25,6 +25,10 @@ public class FirebaseAuthRestClient {
     private static final String RESET_PASSWORD_URL =
             "https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key={key}";
 
+    // ログイン中のユーザーのパスワード変更用API
+    private static final String UPDATE_PASSWORD_URL =
+            "https://identitytoolkit.googleapis.com/v1/accounts:update?key={key}";
+
     private final RestClient restClient = RestClient.create();
     private final String apiKey;
 
@@ -120,4 +124,63 @@ public class FirebaseAuthRestClient {
             throw new PasswordResetException(null);
         }
     }
+
+
+    // パスワードを変更する
+    public void changePassword(
+            String email,
+            String currentPassword,
+            String newPassword) {
+
+        Map<String, Object> signInResult;
+
+        try {
+            // 現在のパスワードで再認証する
+            signInResult = restClient.post()
+                    .uri(SIGN_IN_URL, apiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "email", email,
+                            "password", currentPassword,
+                            "returnSecureToken", true))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Map<String, Object>>() {});
+
+        } catch (HttpClientErrorException e) {
+
+            // 現在のパスワードが間違っている場合
+            throw new AuthFailedException(true);
+
+        } catch (RestClientException e) {
+
+            // 通信などで認証に失敗した場合
+            throw new PasswordResetException(null);
+        }
+
+        if (signInResult == null || signInResult.get("idToken") == null) {
+            throw new PasswordResetException(null);
+        }
+
+        // IDトークンを取得する
+        String idToken = (String) signInResult.get("idToken");
+
+        try {
+            // 新しいパスワードに変更する
+            restClient.post()
+                    .uri(UPDATE_PASSWORD_URL, apiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "idToken", idToken,
+                            "password", newPassword,
+                            "returnSecureToken", true))
+                    .retrieve()
+                    .toBodilessEntity();
+
+        } catch (RestClientException e) {
+
+            // パスワードの変更に失敗した場合
+            throw new PasswordResetException(null);
+        }
+    }
+
 }

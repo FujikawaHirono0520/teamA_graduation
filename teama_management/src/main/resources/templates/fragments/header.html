@@ -1,5 +1,5 @@
 <header class="app-header" th:fragment="header(showUser)">
-    <div class="app-title">課題管理システム</div>
+    <a class="app-title" th:href="@{/assignments}">課題管理システム</a>
 
     <p class="header-user"
        th:if="${showUser and session.loginUid != null}">

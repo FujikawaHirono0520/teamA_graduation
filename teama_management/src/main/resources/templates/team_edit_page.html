@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>チーム編集 - 課題管理システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!-- ヘッダー -->
+    <header th:replace="~{fragments/header :: header(true)}"></header>
+
+    <main class="container team-edit-container">
+
+        <!-- タイトル -->
+        <div class="assignment-title-bar">
+
+            <div class="assignment-title-left">
+
+                <!-- 戻るボタン -->
+                <a th:href="@{/team_detail_page/{teamId}(teamId=${teamId})}"
+                   class="back-link">←</a>
+
+                <h1>チーム編集</h1>
+
+            </div>
+
+            <!-- 自分の役割 -->
+            <span class="settings-role settings-role-leader">
+                リーダー
+            </span>
+
+        </div>
+
+        <form th:action="@{/team_edit_page}" method="post"
+              id="teamEditForm">
+
+            <input type="hidden" name="teamId" th:value="${teamId}">
+
+            <!-- チーム名 -->
+            <div class="team-edit-field">
+
+                <label for="teamName">チーム名</label>
+
+                <input type="text"
+                       id="teamName"
+                       name="teamName"
+                       th:value="${teamName}">
+
+                <!-- チーム名エラー -->
+                <p id="teamNameError" class="error"></p>
+
+            </div>
+
+            <!-- ユーザー検索 -->
+            <div class="team-member-area">
+
+                <h2>ユーザーを追加（名前・ユーザーIDで検索）</h2>
+
+                <input type="text"
+                       id="userSearch"
+                       placeholder="名前・ユーザーIDで検索"
+                       autocomplete="off">
+
+                <!-- 検索結果 -->
+                <div id="searchResults" class="team-search-results"></div>
+
+                <!-- 検索エラー -->
+                <p id="searchError" class="search-error"></p>
+
+            </div>
+
+            <!-- 現在のユーザー -->
+            <div class="team-edit-member-area">
+
+                <h2>
+                    現在のユーザー
+                    （<span id="memberCount"
+                           th:text="${#lists.size(members)}"></span>人）
+                </h2>
+
+                <div id="selectedMembers" class="team-edit-selected">
+
+                    <div class="team-edit-member"
+                         th:each="member : ${members}"
+                         th:attr="data-id=${member.id},
+                                  data-name=${member.name}">
+
+                        <span th:text="${member.name}"></span>
+
+                        <small th:text="'ID:' + ${member.id}"></small>
+
+                        <button type="button"
+                                class="team-edit-remove"
+                                aria-label="削除">
+                            ×
+                        </button>
+
+                        <input type="hidden"
+                               name="memberIds"
+                               th:value="${member.id}">
+
+                    </div>
+
+                </div>
+
+                <!-- ユーザー追加エラー -->
+                <p id="memberError" class="error"></p>
+
+            </div>
+
+            <!-- ボタン -->
+            <div class="team-create-buttons">
+
+                <a th:href="@{/team_detail_page/{teamId}(teamId=${teamId})}"
+                   class="team-cancel-btn">
+                    キャンセル
+                </a>
+
+                <button type="submit" class="team-submit-btn">
+                    更新
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+    <!-- フッター -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- ユーザー検索・追加・削除処理 -->
+    <script>
+        const searchInput = document.getElementById("userSearch");
+        const searchResults = document.getElementById("searchResults");
+        const selectedMembers = document.getElementById("selectedMembers");
+        const memberCount = document.getElementById("memberCount");
+
+        // 現在選択されているユーザーIDを取得する
+        function getSelectedIds() {
+            return Array.from(
+                selectedMembers.querySelectorAll('input[name="memberIds"]')
+            ).map(input => input.value);
+        }
+
+        // ユーザー数を更新する
+        function updateMemberCount() {
+            memberCount.textContent =
+                selectedMembers.querySelectorAll(".team-edit-member").length;
+        }
+
+        // ユーザーを追加する
+        function addMember(user) {
+
+            // すでに追加されている場合
+            if (getSelectedIds().includes(user.id)) {
+                return;
+            }
+
+            const member = document.createElement("div");
+            member.className = "team-edit-member";
+            member.dataset.id = user.id;
+            member.dataset.name = user.name;
+
+            const name = document.createElement("span");
+            name.textContent = user.name;
+
+            const id = document.createElement("small");
+            id.textContent = "ID:" + user.id;
+
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "team-edit-remove";
+            removeButton.textContent = "×";
+            removeButton.setAttribute("aria-label", "削除");
+
+            const hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "memberIds";
+            hiddenInput.value = user.id;
+
+            member.appendChild(name);
+            member.appendChild(id);
+            member.appendChild(removeButton);
+            member.appendChild(hiddenInput);
+
+            selectedMembers.appendChild(member);
+
+            updateMemberCount();
+
+            // ユーザー追加エラーを消す
+            document.getElementById("memberError").textContent = "";
+        }
+
+        // ユーザーを削除する
+        selectedMembers.addEventListener("click", function(event) {
+
+            if (event.target.classList.contains("team-edit-remove")) {
+                event.target.closest(".team-edit-member").remove();
+                updateMemberCount();
+            }
+        });
+
+        // ユーザーを検索する
+        searchInput.addEventListener("input", async function() {
+
+            const keyword = searchInput.value.trim();
+
+            searchResults.innerHTML = "";
+
+            // 前の検索エラーを消す
+            document.getElementById("searchError").textContent = "";
+
+            if (keyword === "") {
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    "/team_create_page/search?keyword=" +
+                    encodeURIComponent(keyword)
+                );
+
+                const users = await response.json();
+
+                // 重複したユーザーを表示しない
+                const displayedIds = [];
+
+                // 追加できるユーザーがいるか確認する
+                let foundUser = false;
+
+                users.forEach(user => {
+
+                    // すでに表示したユーザーの場合
+                    if (displayedIds.includes(user.id)) {
+                        return;
+                    }
+
+                    displayedIds.push(user.id);
+
+                    // すでに追加されているユーザーは表示しない
+                    if (getSelectedIds().includes(user.id)) {
+                        return;
+                    }
+
+                    foundUser = true;
+
+                    const result = document.createElement("button");
+                    result.type = "button";
+                    result.className = "team-search-item";
+
+                    // ユーザー名
+                    const name = document.createElement("span");
+                    name.className = "user-name";
+                    name.textContent = user.name;
+
+                    // ユーザーID
+                    const id = document.createElement("span");
+                    id.className = "user-id";
+                    id.textContent = "ユーザーID：" + user.id;
+
+                    result.appendChild(name);
+                    result.appendChild(id);
+
+                    result.addEventListener("click", function() {
+                        addMember(user);
+                        searchResults.innerHTML = "";
+                        searchInput.value = "";
+                    });
+
+                    searchResults.appendChild(result);
+                });
+
+                // 検索結果がない場合
+                if (!foundUser) {
+                    document.getElementById("searchError").textContent =
+                        "検索に該当するユーザーが見つかりません";
+                }
+
+            } catch (error) {
+                document.getElementById("searchError").textContent =
+                    "ユーザーの検索に失敗しました";
+            }
+        });
+
+        // チーム編集時の入力チェック
+        document.getElementById("teamEditForm")
+            .addEventListener("submit", function(event) {
+
+                const teamName =
+                    document.getElementById("teamName").value.trim();
+
+                const teamNameError =
+                    document.getElementById("teamNameError");
+
+                const memberError =
+                    document.getElementById("memberError");
+
+                // 前のエラーメッセージを消す
+                teamNameError.textContent = "";
+                memberError.textContent = "";
+
+                let hasError = false;
+
+                // チーム名の入力チェック
+                if (teamName === "") {
+                    teamNameError.textContent =
+                        "※チーム名を入力してください";
+
+                    hasError = true;
+                }
+
+                // ユーザー数のチェック
+                if (getSelectedIds().length === 0) {
+                    memberError.textContent =
+                        "※ユーザーを1人以上追加してください";
+
+                    hasError = true;
+                }
+
+                // エラーがある場合は更新しない
+                if (hasError) {
+                    event.preventDefault();
+                }
+            });
+
+        // 画面を開いたときにユーザー数を更新する
+        updateMemberCount();
+    </script>
+
+</body>
+</html>
