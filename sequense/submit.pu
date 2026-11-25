@@ -1,0 +1,40 @@
+@startuml 課題を提出する
+title 課題を提出する
+autonumber
+
+actor ユーザー as User
+boundary AssignmentDetailPage
+boundary SubmitConfirmDialog
+control AssignmentSubmissionController
+database Firestore
+
+User -> AssignmentDetailPage : 「提出する」を押下する
+AssignmentDetailPage -> AssignmentSubmissionController : 提出確認を要求する
+activate AssignmentSubmissionController --> SubmitConfirmDialog : 課題名と説明を提出確認ダイアログに表示する
+
+alt 「キャンセル」を押下した場合
+    User -> SubmitConfirmDialog : 「キャンセル」を押下する
+    SubmitConfirmDialog -> AssignmentSubmissionController : 提出のキャンセルを通知する
+ AssignmentSubmissionController --> AssignmentDetailPage : 提出を実行せず、提出確認ダイアログを閉じて課題詳細画面に戻る
+else 「提出する」を押下した場合
+    User -> SubmitConfirmDialog : 「提出する」を押下する
+    SubmitConfirmDialog -> AssignmentSubmissionController : 提出を要求する
+ AssignmentSubmissionController -> AssignmentSubmissionController : 提出条件を検証する
+ AssignmentSubmissionController -> Firestore : 課題のステータスを承認待ちに更新し、提出情報を保存する
+    activate Firestore
+    return 保存結果
+    alt 課題の提出処理に失敗した場合
+     AssignmentSubmissionController --> AssignmentDetailPage : エラーメッセージ「課題の提出に失敗しました」を表示する
+    else 課題の提出処理に成功した場合
+     AssignmentSubmissionController -> Firestore : リーダーへの提出通知データを保存する
+        activate Firestore
+        return 保存結果
+        alt リーダーへの通知に失敗した場合
+         AssignmentSubmissionController --> AssignmentDetailPage : エラーメッセージ「課題の提出に失敗しました」を表示し、通知を再送できるようにする
+        else リーダーへの通知に成功した場合
+         AssignmentSubmissionController --> AssignmentDetailPage : メッセージ「提出済みです。リーダーの確認をお待ちください」を表示する
+        end
+    end
+end
+deactivate
+@enduml

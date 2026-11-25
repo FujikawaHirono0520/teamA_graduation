@@ -1,0 +1,64 @@
+@startuml チームを作成する
+title チームを作成する
+autonumber
+
+actor "ユーザー/リーダー" as Actor
+boundary SettingsPage
+boundary TeamCreatePage
+boundary TeamDetailPage
+control TeamController
+database Firestore
+
+Actor -> SettingsPage : 「チームを作成」を押下する
+SettingsPage -> TeamController : チーム作成画面の表示を要求する
+activate TeamController
+TeamController --> TeamCreatePage : チーム作成画面を表示する
+deactivate TeamController
+
+Actor -> TeamCreatePage : チーム名を入力する
+Actor -> TeamCreatePage : 追加するユーザーの名前またはユーザーIDを検索欄に入力する
+Actor -> TeamCreatePage : 「追加」を押下する
+TeamCreatePage -> TeamController : ユーザーの検索を要求する
+activate TeamController
+alt 検索条件に該当するユーザーが見つからない場合
+    TeamController --> TeamCreatePage : メッセージ「該当するユーザーが見つかりません」を表示する
+else 検索条件に該当するユーザーが見つかった場合
+    TeamController --> TeamCreatePage : 該当するユーザーを表示する
+    Actor -> TeamCreatePage : 追加するユーザーを選択する
+    TeamCreatePage -> TeamController : ユーザーの追加を要求する
+    alt 追加しようとしたユーザーがすでに追加されている場合
+        TeamController --> TeamCreatePage : メッセージ「すでに追加されています」を表示する
+    else まだ追加されていないユーザーの場合
+        TeamController --> TeamCreatePage : 選択されたユーザーを追加するユーザーの一覧に表示する
+    end
+end
+deactivate TeamController
+
+alt 「キャンセル」を押下した場合
+    Actor -> TeamCreatePage : 「キャンセル」を押下する
+    TeamCreatePage -> TeamController : チーム作成のキャンセルを要求する
+    activate TeamController
+    TeamController --> SettingsPage : チームを作成せず、設定画面を表示する
+    deactivate TeamController
+else 「作成」を押下した場合
+    Actor -> TeamCreatePage : 「作成」を押下する
+    TeamCreatePage -> TeamController : チームの作成を要求する
+    activate TeamController
+    TeamController -> TeamController : 入力内容を検証する
+    alt チーム名が未入力の場合
+        TeamController --> TeamCreatePage : エラーメッセージ「チーム名を入力してください」を表示する
+    else 作成者以外のユーザーが1人も追加されていない場合
+        TeamController --> TeamCreatePage : エラーメッセージ「ユーザーを1人以上追加してください」を表示する
+    else 入力内容に問題がない場合
+        TeamController -> Firestore : チーム情報を登録する（作成者をリーダー、追加したユーザーをメンバーとして登録）
+        activate Firestore
+        return 登録結果
+        alt チームの作成に失敗した場合
+            TeamController --> TeamCreatePage : エラーメッセージ「チームの作成に失敗しました」を表示する
+        else チームの作成に成功した場合
+            TeamController --> TeamDetailPage : チーム詳細画面に遷移し、スナックバー「チームを作成しました」を表示する
+        end
+    end
+    deactivate TeamController
+end
+@enduml

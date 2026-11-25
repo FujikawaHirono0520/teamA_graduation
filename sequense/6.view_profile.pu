@@ -1,0 +1,23 @@
+@startuml プロフィールを確認する
+title プロフィールを確認する
+autonumber
+
+actor "リーダー/ユーザー" as Actor
+boundary Header as H
+boundary SettingsPage
+control SettingsController
+
+Actor -> H : ヘッダーの「ユーザーID」を押下する
+activate H
+H -> SettingsController : 設定画面の表示を要求する
+deactivate H
+activate SettingsController
+SettingsController -> SettingsController : ログイン中のユーザー情報を取得する
+
+alt ユーザー情報の取得に失敗した場合
+    SettingsController --> SettingsPage : エラーメッセージ「プロフィール情報の取得に失敗しました」を表示する
+else ユーザー情報を取得できた場合
+    SettingsController --> SettingsPage : 設定画面に遷移し、ユーザーの名前とユーザーIDを表示する
+end
+deactivate SettingsController
+@enduml
