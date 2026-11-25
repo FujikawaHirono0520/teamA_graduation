@@ -37,7 +37,7 @@ public class AssignmentEditController {
 
         String loginUid = session.getAttribute("loginUid").toString();
 
-        // TODO: 既存課題データを取得して form に設定する
+        // TODO: 既存課題データをFirestoreから取得して form に設定する
         AssignmentCreateForm form = new AssignmentCreateForm();
 
         model.addAttribute("assignmentId", id);
@@ -114,7 +114,7 @@ public class AssignmentEditController {
             // TODO: assignmentService.updateAssignment(id, form, loginUid);
             redirectAttributes.addFlashAttribute(
                     "snackbarMessage",
-                    form.getTitle().trim() + "を更新しました");
+                    "課題情報を更新しました");
             return "redirect:/assignments";
         } catch (IllegalArgumentException e) {
             model.addAttribute("assignmentId", id);
