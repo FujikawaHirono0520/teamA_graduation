@@ -1274,3 +1274,158 @@ a.app-title { display: block; color: #fff; text-decoration: none; }
     flex-direction: column;
     gap: 5px;
 }
+
+/* 課題管理画面 */
+.assignment-manage-container {
+    box-sizing: border-box;
+}
+
+/* 課題名 */
+.assignment-manage-name {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+/* 課題情報 */
+.assignment-manage-info {
+    margin: 0 0 14px;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
+/* 編集・削除ボタン */
+.assignment-manage-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 12px 0 26px;
+}
+
+.assignment-manage-btn {
+    min-width: 82px;
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 7px;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.assignment-delete-btn {
+    background: #e00000;
+}
+
+.assignment-manage-btn:hover {
+    opacity: 0.8;
+}
+
+/* 進捗一覧 */
+.assignment-progress-title {
+    margin: 0 0 10px;
+    font-size: 1rem;
+}
+
+.assignment-progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.assignment-progress-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 38px;
+    padding: 5px 12px;
+    border: 1px solid #d8d8d8;
+    border-radius: 5px;
+    background: #f5f5f5;
+    font-size: 0.875rem;
+    box-sizing: border-box;
+}
+
+.assignment-progress-name {
+    overflow-wrap: anywhere;
+}
+
+.assignment-progress-status {
+    min-width: 66px;
+    padding: 4px 10px;
+    border-radius: 18px;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* 進捗ステータス */
+.progress-not-started {
+    background: #999;
+}
+
+.progress-in-progress {
+    background: #f5a623;
+}
+
+.progress-completed {
+    background: #40a354;
+}
+
+/* 担当ユーザーがいない場合 */
+.assignment-empty {
+    padding: 12px;
+    color: #777;
+    text-align: center;
+}
+
+/* ===== 課題削除確認ダイアログ ===== */
+
+.assignment-delete-dialog {
+    width: 400px;
+    max-width: calc(100% - 32px);
+    height: 200px;
+    min-height: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* 縦方向の配置 */
+.assignment-delete-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* 課題名 */
+.assignment-delete-dialog h1 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* 確認メッセージ */
+.assignment-delete-dialog label {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+/* ボタン配置 */
+.assignment-delete-dialog .logout-dialog-buttons {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.assignment-delete-dialog .logout-dialog-buttons button {
+    padding: 10px 4px;
+    font-size: 0.85rem;
+}
