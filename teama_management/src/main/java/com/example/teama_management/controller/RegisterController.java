@@ -27,37 +27,6 @@ public class RegisterController {
 
     @GetMapping("/register")
     public String showRegister(Model model) {
-        model.addAttribute("registerForm", new RegisterForm());
-        return "register";
-    }
-
-    @GetMapping("/register/back")
-    public String backToLogin() {
-        return "redirect:/login";
-    }
-
-    @PostMapping("/register")
-    public String register(@ModelAttribute("registerForm") RegisterForm form, Model model) {
-        String username = trim(form.get_usernameController());
-        String email = trim(form.get_emailController());
-        String password = nullToEmpty(form.get_passwordController());
-        String confirm = nullToEmpty(form.get_passwordConfirmController());
-
-        // 代替フロー 4a-1 〜 5a-3 の順で検証
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirm.isEmpty()) {
-            model.addAttribute("emptyError", "※すべての項目を入力してください");
-            return "register";
-        }
-        if (!email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
-            model.addAttribute("emailFormatError", "※メールアドレスを正しく入力してください");
-            return "register";
-        }
-        if (!password.matches("^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{8,}$")) {
-            model.addAttribute("passwordPolicyError", "※英数字すべて含みかつ8文字以上でパスワードを設定してください");
-            return "register";
-        }
-        if (!password.equals(confirm)) {
-            model.addAttribute("passwordMismatchError", "※パスワードが一致しません");
         model.addAttribute("form", new RegisterForm());
         return "register";
     }
@@ -72,43 +41,6 @@ public class RegisterController {
         }
 
         try {
-            // 基本フロー 6: Firebase Authentication にアカウント登録
-            UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                    .setEmail(email)
-                    .setPassword(password)
-                    .setDisplayName(username);
-            UserRecord user = FirebaseAuth.getInstance().createUser(request);
-
-            // Firestore (Users) にユーザー情報を保存
-            Map<String, Object> data = new HashMap<>();
-            data.put("userId", user.getUid());
-            data.put("name", username);
-            data.put("email", email);
-            data.put("createdAt", FieldValue.serverTimestamp());
-            data.put("updatedAt", FieldValue.serverTimestamp());
-            firestore.collection("Users").document(user.getUid()).set(data).get();
-
-            // 基本フロー 7: ログイン画面へ遷移
-            return "redirect:/login";
-        } catch (FirebaseAuthException e) {
-            if (e.getAuthErrorCode() == AuthErrorCode.EMAIL_ALREADY_EXISTS) {
-                model.addAttribute("emailDuplicateError", "※このメールアドレスは登録済みです");
-            } else {
-                model.addAttribute("systemError", "※ユーザー登録に失敗しました");
-            }
-            return "register";
-        } catch (Exception e) {
-            model.addAttribute("systemError", "※ユーザー登録に失敗しました");
-            return "register";
-        }
-    }
-
-    private String trim(String s) {
-        return s == null ? "" : s.trim();
-    }
-
-    private String nullToEmpty(String s) {
-        return s == null ? "" : s;
             // Firebase Authentication にアカウントを登録する
             UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                     .setEmail(form.getEmail())
