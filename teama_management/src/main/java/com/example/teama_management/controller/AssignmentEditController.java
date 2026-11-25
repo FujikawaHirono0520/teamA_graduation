@@ -27,7 +27,7 @@ public class AssignmentEditController {
 
     @GetMapping("/assignments/{id}/edit")
     public String showEditForm(
-            @PathVariable("id") Long id,
+            @PathVariable("id") String id,
             HttpSession session,
             Model model) throws Exception {
 
@@ -52,7 +52,7 @@ public class AssignmentEditController {
     @GetMapping("/assignments/{id}/edit/search")
     @ResponseBody
     public List searchUsers(
-            @PathVariable("id") Long id,
+            @PathVariable("id") String id,
             @RequestParam("keyword") String keyword,
             HttpSession session) throws Exception {
 
@@ -67,7 +67,7 @@ public class AssignmentEditController {
 
     @PostMapping("/assignments/{id}/edit")
     public String updateAssignment(
-            @PathVariable("id") Long id,
+            @PathVariable("id") String id,
             @ModelAttribute("form") AssignmentCreateForm form,
             HttpSession session,
             Model model,
