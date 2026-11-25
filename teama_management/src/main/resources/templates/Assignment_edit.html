@@ -79,15 +79,15 @@
 
                 <!-- 選択済みユーザーチップ -->
                 <div id="selectedUsersContainer" class="selected-user-chips">
-                    <div class="selected-user-chip" th:each="userId : ${form.assigneeIds}" th:data-uid="${userId}">
+                    <div class="selected-user-chip" th:each="user : ${selectedUsers}" th:data-uid="${user.id}">
 
-                        <span class="chip-user-name" th:text="${userId}"></span>
-                        <span class="chip-user-id" th:text="'ID:' + ${userId}"></span>
+                        <span class="chip-user-name" th:text="${user.name}"></span>
+                        <span class="chip-user-id" th:text="'ID:' + ${user.id}"></span>
 
                         <button type="button" class="chip-remove-btn" onclick="removeUserChip(this)"
                             aria-label="削除">&times;</button>
 
-                        <input type="hidden" name="assigneeIds" th:value="${userId}">
+                        <input type="hidden" name="assigneeIds" th:value="${user.id}">
                     </div>
                 </div>
             </div>
@@ -134,184 +134,287 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script th:inline="javascript">
+
         const searchUrl = /*[[@{/assignments/{id}/edit/search(id=${assignmentId})}]]*/
+
             "/assignments/0/edit/search";
+
         let searchRequestId = 0;
 
         function onTargetTypeChange() {
+
             const selected = document.querySelector('input[name="targetType"]:checked');
+
             const pills = document.querySelectorAll('.target-pill');
 
             pills.forEach(p => p.classList.remove('is-active'));
 
             if (selected) {
+
                 const parentLabel = selected.closest('.target-pill');
+
                 if (parentLabel) parentLabel.classList.add('is-active');
+
             }
 
             const isTeam = selected && selected.value === 'team';
+
             const isIndividual = selected && selected.value === 'individual';
 
             const teamSec = document.getElementById('teamTargetSection');
+
             const indSec = document.getElementById('individualTargetSection');
 
             if (teamSec) teamSec.style.display = isTeam ? '' : 'none';
+
             if (indSec) indSec.style.display = isIndividual ? '' : 'none';
+
         }
 
         async function filterCandidates() {
+
             const input = document.getElementById('userSearchInput');
+
             const listEl = document.getElementById('candidateList');
+
             const searchError = document.getElementById('searchError');
+
             const keyword = input.value.trim();
 
             const requestId = ++searchRequestId;
 
             listEl.innerHTML = '';
+
             searchError.textContent = '';
 
             if (!keyword) {
+
                 listEl.style.display = 'none';
+
                 return;
+
             }
 
             try {
+
                 const response = await fetch(
+
                     searchUrl + "?keyword=" + encodeURIComponent(keyword)
+
                 );
 
                 if (!response.ok) {
+
                     throw new Error("検索に失敗しました");
+
                 }
 
                 const users = await response.json();
 
                 if (requestId !== searchRequestId) {
+
                     return;
+
                 }
 
                 const displayedIds = [];
+
                 let foundUser = false;
 
                 users.forEach(user => {
+
                     if (displayedIds.includes(user.id)) {
+
                         return;
+
                     }
+
                     displayedIds.push(user.id);
 
                     const selectedInputs = document.querySelectorAll(
+
                         '#selectedUsersContainer input[name="assigneeIds"]'
+
                     );
+
                     const alreadySelected = Array.from(selectedInputs)
+
                         .some(selected => selected.value === user.id);
 
                     if (alreadySelected) {
+
                         return;
+
                     }
 
                     foundUser = true;
 
                     const li = document.createElement('li');
+
                     const item = document.createElement('button');
+
                     item.type = 'button';
+
                     item.className = 'team-search-item';
 
                     const name = document.createElement('span');
+
                     name.className = 'user-name';
+
                     name.textContent = user.name;
 
                     const id = document.createElement('span');
+
                     id.className = 'user-id';
+
                     id.textContent = 'ユーザーID：' + user.id;
 
                     item.addEventListener('click', function () {
+
                         selectCandidate(user.name, user.id);
+
                     });
 
                     item.appendChild(name);
+
                     item.appendChild(id);
+
                     li.appendChild(item);
+
                     listEl.appendChild(li);
+
                 });
 
                 if (!foundUser) {
+
                     searchError.textContent = "検索に該当するユーザーが見つかりません";
+
                     listEl.style.display = 'none';
+
                 } else {
+
                     listEl.style.display = 'block';
+
                 }
 
             } catch (error) {
+
                 if (requestId !== searchRequestId) {
+
                     return;
+
                 }
+
                 console.error("ユーザー検索に失敗しました", error);
+
                 listEl.style.display = 'none';
+
                 searchError.textContent = "ユーザーの検索に失敗しました";
+
             }
+
         }
 
         function selectCandidate(name, uid) {
+
             const container = document.getElementById('selectedUsersContainer');
+
             const input = document.getElementById('userSearchInput');
+
             const listEl = document.getElementById('candidateList');
+
             const searchError = document.getElementById('searchError');
 
             const selectedInputs = container.querySelectorAll('input[name="assigneeIds"]');
+
             const alreadySelected = Array.from(selectedInputs)
+
                 .some(selected => selected.value === uid);
 
             if (!alreadySelected) {
+
                 const chip = document.createElement('div');
+
                 chip.className = 'selected-user-chip';
+
                 chip.setAttribute('data-uid', uid);
 
                 const userName = document.createElement('span');
+
                 userName.className = 'chip-user-name';
+
                 userName.textContent = name;
 
                 const userId = document.createElement('span');
+
                 userId.className = 'chip-user-id';
+
                 userId.textContent = 'ID:' + uid;
 
                 const removeButton = document.createElement('button');
+
                 removeButton.type = 'button';
+
                 removeButton.className = 'chip-remove-btn';
+
                 removeButton.textContent = '×';
+
                 removeButton.setAttribute('aria-label', '削除');
+
                 removeButton.onclick = function () {
+
                     removeUserChip(removeButton);
+
                 };
 
                 const hidden = document.createElement('input');
+
                 hidden.type = 'hidden';
+
                 hidden.name = 'assigneeIds';
+
                 hidden.value = uid;
 
                 chip.appendChild(userName);
+
                 chip.appendChild(userId);
+
                 chip.appendChild(removeButton);
+
                 chip.appendChild(hidden);
 
                 container.appendChild(chip);
+
             }
 
             input.value = '';
+
             listEl.style.display = 'none';
+
             listEl.innerHTML = '';
+
             searchError.textContent = '';
+
         }
 
         function removeUserChip(btn) {
+
             const chip = btn.closest('.selected-user-chip');
+
             if (chip) chip.remove();
+
         }
 
         document.addEventListener('click', (e) => {
+
             if (!e.target.closest('.user-search-box')) {
+
                 const listEl = document.getElementById('candidateList');
+
                 if (listEl) listEl.style.display = 'none';
+
             }
+
         });
 
         onTargetTypeChange();
