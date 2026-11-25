@@ -37,7 +37,7 @@
             <!-- 編集・削除 -->
             <div class="assignment-manage-buttons">
                 <a class="assignment-manage-btn team-member-edit-btn"
-                   th:href="@{/assignments/edit/{id}(id=${assignment.id})}">編集</a>
+                   th:href="@{/assignments/{id}/edit(id=${assignment.id})}">編集</a>
                 <button type="button" class="assignment-manage-btn assignment-delete-btn"
                         onclick="document.getElementById('deleteDialog').showModal()">削除</button>
             </div>
