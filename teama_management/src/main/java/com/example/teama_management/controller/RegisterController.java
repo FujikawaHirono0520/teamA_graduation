@@ -27,7 +27,6 @@ public class RegisterController {
 
     @GetMapping("/register")
     public String showRegister(Model model) {
-<<<<<<< HEAD
         model.addAttribute("registerForm", new RegisterForm());
         return "register";
     }
@@ -59,7 +58,6 @@ public class RegisterController {
         }
         if (!password.equals(confirm)) {
             model.addAttribute("passwordMismatchError", "※パスワードが一致しません");
-=======
         model.addAttribute("form", new RegisterForm());
         return "register";
     }
@@ -70,12 +68,10 @@ public class RegisterController {
         String error = validate(form);
         if (error != null) {
             model.addAttribute("errorMessage", error);
->>>>>>> origin/master
             return "register";
         }
 
         try {
-<<<<<<< HEAD
             // 基本フロー 6: Firebase Authentication にアカウント登録
             UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                     .setEmail(email)
@@ -113,7 +109,6 @@ public class RegisterController {
 
     private String nullToEmpty(String s) {
         return s == null ? "" : s;
-=======
             // Firebase Authentication にアカウントを登録する
             UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                     .setEmail(form.getEmail())
@@ -163,6 +158,5 @@ public class RegisterController {
 
     private boolean isBlank(String s) {
         return s == null || s.isBlank();
->>>>>>> origin/master
     }
 }
