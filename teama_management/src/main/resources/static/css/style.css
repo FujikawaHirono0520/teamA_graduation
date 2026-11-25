@@ -880,7 +880,8 @@ input[type=password] {
 
 /* ボタンにマウスを乗せたとき */
 .team-cancel-btn:hover,
-.team-submit-btn:hover {
+.team-submit-btn:hover,
+.assignment-submit-section .btn-green:hover {
     opacity: 0.8;
 }
 
@@ -1359,7 +1360,7 @@ a.app-title { display: block; color: #fff; text-decoration: none; }
 .assignment-manage-info {
     margin: 0 0 14px;
     font-size: 0.875rem;
-    line-height: 1.7;
+    line-height: 0.8;
     white-space: pre-line;
 }
 
@@ -1718,4 +1719,12 @@ a.app-title { display: block; color: #fff; text-decoration: none; }
     color: #fff;
     cursor: not-allowed;
     opacity: 1;
+}
+
+/* 提出ボタンの配置 */
+.assignment-submit-section {
+    margin-top: 20px;
+    padding: 0;
+    border: none;
+    background: none;
 }

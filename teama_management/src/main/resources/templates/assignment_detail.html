@@ -42,39 +42,42 @@
 
             <!-- 提出前 -->
             <form th:if="${assignment.status != 'waitingApproval'
-                          and assignment.status != 'approved'
-                          and assignment.status != 'completed'
-                          and assignment.status != '承認済み'}"
-                  th:action="@{/assignments/{id}/status(id=${assignment.id})}"
-                  method="post">
+                        and assignment.status != 'approved'
+                        and assignment.status != 'completed'
+                        and assignment.status != '承認済み'}"
+                th:action="@{/assignments/{id}/status(id=${assignment.id})}"
+                method="post">
 
                 <div class="assignment-status-row">
                     <span class="assignment-status-title">ステータス</span>
 
                     <label class="assignment-status-option">
-                        <input type="radio" name="status" value="notStarted"
+                        <input type="radio"
+                            name="status"
+                            value="notStarted"
                             th:checked="${assignment.status == 'notStarted'
-                                          or assignment.status == '未着手'}">
+                                            or assignment.status == '未着手'}"
+                            onchange="this.form.submit()">
                         未着手
                     </label>
 
                     <label class="assignment-status-option">
-                        <input type="radio" name="status" value="inProgress"
+                        <input type="radio"
+                            name="status"
+                            value="inProgress"
                             th:checked="${assignment.status == 'inProgress'
-                                          or assignment.status == '着手中'}">
+                                            or assignment.status == '着手中'}"
+                            onchange="this.form.submit()">
                         着手中
                     </label>
                 </div>
 
-                <button type="submit" class="assignment-status-save">
-                    変更する
-                </button>
             </form>
 
             <!-- 提出後 -->
             <div th:if="${assignment.status == 'waitingApproval'
                         or assignment.status == '承認待ち'}"
-                 class="assignment-status-row">
+                class="assignment-status-row">
 
                 <span class="assignment-status-title">ステータス</span>
 
@@ -87,7 +90,7 @@
             <div th:if="${assignment.status == 'approved'
                         or assignment.status == 'completed'
                         or assignment.status == '承認済み'}"
-                 class="assignment-status-row">
+                class="assignment-status-row">
 
                 <span class="assignment-status-title">ステータス</span>
 
@@ -130,7 +133,7 @@
         </section>
 
         <!-- 提出 -->
-        <section class="detail-section">
+        <section class="assignment-submit-section">
 
             <!-- 提出前 -->
             <button th:if="${assignment.status != 'waitingApproval'
