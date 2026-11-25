@@ -1111,6 +1111,8 @@ a.app-title { display: block; color: #fff; text-decoration: none; }
     display: flex;
     flex-direction: column;
     gap: 6px;
+    /* 下に余白をつける */
+    margin-bottom: 20px;
 }
 
 /* メンバー1人分 */

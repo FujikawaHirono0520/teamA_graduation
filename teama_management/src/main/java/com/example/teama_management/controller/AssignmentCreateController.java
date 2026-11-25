@@ -87,10 +87,10 @@ public class AssignmentCreateController {
 
         List<String> assignees = form.getAssigneeIds();
 
+        // 修正　2026年11月25日
         if ((isTeamTarget && isBlank(form.getTeamId()))
-                || (isIndividualTarget
-                        && (assignees == null || assignees.isEmpty()))
-                || (!isTeamTarget && !isIndividualTarget)) {
+            || (isIndividualTarget && (assignees == null || assignees.isEmpty()))
+            || (!isTeamTarget && !isIndividualTarget)) {
 
             model.addAttribute("targetErrorMessage", "対象を選択してください");
             hasError = true;

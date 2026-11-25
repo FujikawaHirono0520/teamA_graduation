@@ -781,12 +781,59 @@ public class TeamController {
         }
     }
 
-    // チーム削除確認画面を表示する
-    @GetMapping("/Team_delete_dialog/{teamId}")
-    public String showTeamDeleteDialog(
-            @PathVariable("teamId") String teamId,
-            HttpSession session,
-            Model model) throws Exception {
+    // // チーム削除確認画面を表示する
+    // @GetMapping("/Team_delete_dialog/{teamId}")
+    // public String showTeamDeleteDialog(
+    //         @PathVariable("teamId") String teamId,
+    //         HttpSession session,
+    //         Model model) throws Exception {
+
+    //     // ログイン中のユーザーIDを取得する
+    //     String uid = (String) session.getAttribute("loginUid");
+
+    //     // ログインしていない場合
+    //     if (uid == null) {
+    //         return "redirect:/login";
+    //     }
+
+    //     // チーム情報を取得する
+    //     DocumentSnapshot teamDoc = firestore.collection("teams")
+    //             .document(teamId)
+    //             .get()
+    //             .get();
+
+    //     // チーム情報が存在しない場合
+    //     if (!teamDoc.exists()) {
+    //         return "redirect:/settings";
+    //     }
+
+    //     // リーダーか確認する
+    //     QuerySnapshot leaderResult = firestore.collection("teammembers")
+    //             .whereEqualTo("teamId", teamId)
+    //             .whereEqualTo("userId", uid)
+    //             .whereEqualTo("role", "leader")
+    //             .get()
+    //             .get();
+
+    //     // リーダーではない場合
+    //     if (leaderResult.isEmpty()) {
+    //         return "redirect:/settings";
+    //     }
+
+    //     model.addAttribute("teamId", teamId);
+    //     model.addAttribute("teamName", teamDoc.getString("teamName"));
+
+    //     return "Team_delete_dialog";
+    // }
+    
+    // チームを削除する
+@PostMapping("/team_delete/{teamId}")
+public String deleteTeam(
+        @PathVariable("teamId") String teamId,
+        HttpSession session,
+        RedirectAttributes redirectAttributes) {
+
+    try {
 
         // ログイン中のユーザーIDを取得する
         String uid = (String) session.getAttribute("loginUid");
@@ -794,17 +841,6 @@ public class TeamController {
         // ログインしていない場合
         if (uid == null) {
             return "redirect:/login";
-        }
-
-        // チーム情報を取得する
-        DocumentSnapshot teamDoc = firestore.collection("teams")
-                .document(teamId)
-                .get()
-                .get();
-
-        // チーム情報が存在しない場合
-        if (!teamDoc.exists()) {
-            return "redirect:/settings";
         }
 
         // リーダーか確認する
@@ -820,85 +856,76 @@ public class TeamController {
             return "redirect:/settings";
         }
 
-        model.addAttribute("teamId", teamId);
-        model.addAttribute("teamName", teamDoc.getString("teamName"));
+        // チーム情報を取得する
+        DocumentReference teamRef = firestore.collection("teams")
+                .document(teamId);
 
-        return "Team_delete_dialog";
-    }
-    
-    // チームを削除する
-    @PostMapping("/team_delete")
-    public String deleteTeam(
-            @RequestParam("teamId") String teamId,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
+        DocumentSnapshot teamDoc = teamRef.get().get();
 
-        try {
-            // ログイン中のユーザーIDを取得する
-            String uid = (String) session.getAttribute("loginUid");
-
-            // ログインしていない場合
-            if (uid == null) {
-                return "redirect:/login";
-            }
-
-            // リーダーか確認する
-            QuerySnapshot leaderResult = firestore.collection("teammembers")
-                    .whereEqualTo("teamId", teamId)
-                    .whereEqualTo("userId", uid)
-                    .whereEqualTo("role", "leader")
-                    .get()
-                    .get();
-
-            if (leaderResult.isEmpty()) {
-                return "redirect:/settings";
-            }
-
-            // チーム情報を取得する
-            DocumentReference teamRef = firestore.collection("teams")
-                    .document(teamId);
-
-            DocumentSnapshot teamDoc = teamRef.get().get();
-
-            if (!teamDoc.exists()) {
-                redirectAttributes.addFlashAttribute(
-                        "errorMessage",
-                        "チームの削除に失敗しました");
-
-                return "redirect:/settings";
-            }
-
-            // チームに所属するメンバー情報を取得する
-            QuerySnapshot memberResult = firestore.collection("teammembers")
-                    .whereEqualTo("teamId", teamId)
-                    .get()
-                    .get();
-
-            // Firestoreのバッチ処理を開始する
-            WriteBatch batch = firestore.batch();
-
-            // メンバー情報を削除する
-            for (DocumentSnapshot doc : memberResult.getDocuments()) {
-                batch.delete(doc.getReference());
-            }
-
-            // チーム情報を削除する
-            batch.delete(teamRef);
-
-            // まとめてFirestoreから削除する
-            batch.commit().get();
-
-            return "redirect:/settings";
-
-        } catch (Exception e) {
-            // エラー内容をコンソールに表示する
-            e.printStackTrace();
+        // チーム情報が存在しない場合
+        if (!teamDoc.exists()) {
 
             redirectAttributes.addFlashAttribute(
                     "errorMessage",
                     "チームの削除に失敗しました");
 
             return "redirect:/team_detail_page/" + teamId;
+        }
+
+        // 削除するチーム名を取得する
+        String teamName = teamDoc.getString("teamName");
+
+        // チームに所属するメンバー情報を取得する
+        QuerySnapshot memberResult = firestore.collection("teammembers")
+                .whereEqualTo("teamId", teamId)
+                .get()
+                .get();
+
+        // チームに関連する課題を取得する
+        QuerySnapshot assignmentResult = firestore.collection("assignments")
+                .whereEqualTo("teamId", teamId)
+                .get()
+                .get();
+
+        // Firestoreのバッチ処理を開始する
+        WriteBatch batch = firestore.batch();
+
+        // メンバー情報を削除する
+        for (DocumentSnapshot doc : memberResult.getDocuments()) {
+            batch.delete(doc.getReference());
+        }
+
+        // チームに関連する課題を削除する
+        for (DocumentSnapshot doc : assignmentResult.getDocuments()) {
+            batch.delete(doc.getReference());
+        }
+
+        // チーム情報を削除する
+        batch.delete(teamRef);
+
+        // まとめてFirestoreから削除する
+        batch.commit().get();
+
+        // 削除成功メッセージを設定する
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                teamName + "を削除しました");
+
+        // 設定画面に戻る
+        return "redirect:/settings";
+
+    } catch (Exception e) {
+
+        // エラー内容をコンソールに表示する
+        e.printStackTrace();
+
+        // 削除失敗メッセージを設定する
+        redirectAttributes.addFlashAttribute(
+                "errorMessage",
+                "チームの削除に失敗しました");
+
+        // チーム詳細画面に戻る
+        return "redirect:/team_detail_page/" + teamId;
         }
     }
 

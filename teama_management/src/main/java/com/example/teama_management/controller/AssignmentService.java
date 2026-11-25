@@ -1,4 +1,3 @@
-
 package com.example.teama_management.controller;
 
 import com.example.teama_management.form.AssignmentCreateForm;
@@ -150,15 +149,18 @@ public class AssignmentService {
             AssignmentCreateForm form, String creatorUid) throws Exception {
 
         List<String> assigneeIds = new ArrayList<>();
+        String resolvedTeamId = null;
 
         boolean isTeamTarget = "team".equals(form.getTargetType());
         boolean isIndividualTarget = "individual".equals(form.getTargetType());
 
         if (isTeamTarget) {
 
+            resolvedTeamId = form.getTeamId();
+
             // 選択したチームのリーダーか確認する
             QuerySnapshot leaderResult = firestore.collection("teammembers")
-                    .whereEqualTo("teamId", form.getTeamId())
+                    .whereEqualTo("teamId", resolvedTeamId)
                     .whereEqualTo("userId", creatorUid)
                     .whereEqualTo("role", "leader")
                     .get()
@@ -170,7 +172,7 @@ public class AssignmentService {
 
             // チームに所属するメンバー全員を取得する
             QuerySnapshot memberResult = firestore.collection("teammembers")
-                    .whereEqualTo("teamId", form.getTeamId())
+                    .whereEqualTo("teamId", resolvedTeamId)
                     .get()
                     .get();
 
@@ -194,8 +196,9 @@ public class AssignmentService {
                 throw new IllegalArgumentException("担当者を選択してください");
             }
 
-            // 自分がリーダーのチームに所属するメンバーIDを取得する
+            // 自分がリーダーのチームに所属するメンバーIDと、そのteamIdを紐づける
             Set<String> leaderMemberIds = new HashSet<>();
+            Map<String, String> memberToTeamId = new HashMap<>();
 
             QuerySnapshot leaderTeams = firestore.collection("teammembers")
                     .whereEqualTo("userId", creatorUid)
@@ -222,15 +225,20 @@ public class AssignmentService {
 
                     if (userId != null) {
                         leaderMemberIds.add(userId);
+                        memberToTeamId.putIfAbsent(userId, teamId);
                     }
                 }
             }
 
-            // 選択したユーザーが対象チームのメンバーか確認する
+            // 選択したユーザーが対象チームのメンバーか確認し、teamIdを特定する
             for (String userId : form.getAssigneeIds()) {
 
                 if (userId == null || !leaderMemberIds.contains(userId)) {
                     throw new IllegalArgumentException("選択した担当者を確認できません");
+                }
+
+                if (resolvedTeamId == null) {
+                    resolvedTeamId = memberToTeamId.get(userId);
                 }
 
                 if (!assigneeIds.contains(userId)) {
@@ -272,8 +280,7 @@ public class AssignmentService {
 
         assignmentData.put("title", form.getTitle().trim());
         assignmentData.put("targetType", form.getTargetType());
-        assignmentData.put("teamId",
-                isTeamTarget ? form.getTeamId() : null);
+        assignmentData.put("teamId", resolvedTeamId);
         assignmentData.put("assigneeIds", assigneeIds);
 
         assignmentData.put("dueDate", form.getDueDate() != null

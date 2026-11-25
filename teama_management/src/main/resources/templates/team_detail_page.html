@@ -139,11 +139,49 @@
         </div>
 
         <!-- チーム削除 -->
-        <a th:href="@{/Team_delete_dialog/{teamId}(teamId=${teamId})}"
-            class="team-delete-btn"
-            th:if="${userRole == 'leader'}">
+        <button type="button"
+                id="teamDeleteOpenButton"
+                class="settings-logout"
+                th:if="${userRole == 'leader'}">
             チームを削除
-        </a>
+        </button>
+
+        <!-- チーム削除確認ダイアログ -->
+        <dialog id="teamDeleteDialog" class="logout-dialog">
+
+            <!-- タイトル -->
+            <h1 th:text="'チーム名：' + ${teamName} + ' を削除しますか？'">
+            </h1>
+
+            <!-- 注意文 -->
+            <label>
+                削除後は、登録した課題は消去され、
+                復元することはできません。
+            </label>
+
+            <div class="logout-dialog-buttons">
+
+                <!-- キャンセル -->
+                <button type="button"
+                        id="teamDeleteCancelButton"
+                        class="btn logout-cancel-btn">
+                    キャンセル
+                </button>
+
+                <!-- 削除 -->
+                <form th:action="@{/team_delete/{teamId}(teamId=${teamId})}"
+                    method="post">
+
+                    <button type="submit"
+                            class="btn logout-confirm-btn">
+                        削除
+                    </button>
+
+                </form>
+
+            </div>
+
+        </dialog>
 
         <!-- 成功メッセージ -->
         <div th:if="${successMessage}" class="team-result-message">
@@ -178,6 +216,36 @@
                 alert("招待コードのコピーに失敗しました");
             }
         }
+
+        // チーム削除確認ダイアログ
+        // ダイアログとボタンを取得
+        const teamDeleteDialog =
+            document.getElementById("teamDeleteDialog");
+
+        const teamDeleteOpenButton =
+            document.getElementById("teamDeleteOpenButton");
+
+        const teamDeleteCancelButton =
+            document.getElementById("teamDeleteCancelButton");
+
+        // チームを削除ボタンを押したとき
+        if (teamDeleteOpenButton) {
+
+            teamDeleteOpenButton.addEventListener("click", () => {
+
+                // 削除確認ダイアログを表示する
+                teamDeleteDialog.showModal();
+
+            });
+        }
+
+        // キャンセルボタンを押したとき
+        teamDeleteCancelButton.addEventListener("click", () => {
+
+            // 削除確認ダイアログを閉じる
+            teamDeleteDialog.close();
+
+        });
     </script>
 
 </body>
