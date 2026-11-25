@@ -136,7 +136,8 @@ public class TeamController {
             @RequestParam(value = "memberIds", required = false)
             List<String> memberIds,
             HttpSession session,
-            Model model) throws Exception {
+            Model model,
+            RedirectAttributes redirectAttributes) throws Exception {
 
         // ログイン中のユーザーIDを取得する
         String uid = (String) session.getAttribute("loginUid");
@@ -220,6 +221,11 @@ public class TeamController {
             // まとめてFirestoreに保存する
             batch.commit().get();
 
+            // 作成成功メッセージを設定する
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    teamName + "を作成しました");
+
             // 作成後は設定画面に戻る
             return "redirect:/settings";
 
@@ -229,7 +235,7 @@ public class TeamController {
             e.printStackTrace();
 
             // チーム作成失敗のメッセージを設定する
-            model.addAttribute(
+            redirectAttributes.addFlashAttribute(
                     "errorMessage",
                     "チームの作成に失敗しました");
 
