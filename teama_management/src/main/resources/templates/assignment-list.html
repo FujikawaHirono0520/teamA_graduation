@@ -51,7 +51,8 @@
       </div>
       <div class="chips">
         <label class="chip" th:each="f : ${filters}">
-          <input type="radio" name="status" th:value="${f[0]}" th:checked="${f[0] == status}">
+          <input type="radio" name="status" th:value="${f[0]}" th:checked="${f[0] == status}"
+                onchange="this.form.submit()">
           <span th:text="${f[1]}"></span>
         </label>
       </div>
@@ -61,7 +62,8 @@
     <p class="empty" th:if="${emptyMessage}" th:text="${emptyMessage}"></p>
 
     <!-- 課題カード -->
-    <a class="card" th:each="a : ${assignments}" th:href="@{/assignments/{id}(id=${a.id()})}">
+    <a class="card" th:each="a : ${assignments}"
+      th:href="${leader} ? @{/assignments/{id}/manage(id=${a.id()})} : @{/assignments/{id}(id=${a.id()})}">
       <div class="card-head">
         <span class="card-title" th:text="${a.title()}"></span>
         <span class="status" th:classappend="${a.status().cssClass()}"
