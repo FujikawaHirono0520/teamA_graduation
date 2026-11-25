@@ -127,16 +127,94 @@
                     ユーザー
                 </span>
 
-                <!-- メニュー -->
-                <a th:href="@{/User_action_dialog/{teamId}/{userId}(teamId=${teamId}, userId=${member.id})}"
-                   class="team-member-menu"
-                   th:if="${userRole == 'leader' and member.role != 'leader'}">
+                <!-- メニュー（リーダー以外のメンバーに表示） -->
+                <button type="button"
+                        class="team-member-menu"
+                        th:if="${userRole == 'leader' and member.role != 'leader'}"
+                        th:attr="data-user-id=${member.id}, data-user-name=${member.name}"
+                        onclick="openUserActionDialog(this)">
                     …
-                </a>
+                </button>
 
             </div>
 
         </div>
+        <!-- ① ユーザー操作ダイアログ -->
+        <dialog id="userActionDialog" class="logout-dialog">
+            <h1 id="actionDialogUserLabel"></h1>
+
+            <div class="user-action-list">
+                <button type="button"
+                        id="openLeaderConfirmBtn"
+                        class="action-outline-btn action-leader-btn">
+                    リーダーにする
+                </button>
+
+                <button type="button"
+                        id="openRemoveConfirmBtn"
+                        class="action-outline-btn action-remove-btn">
+                    チームから外す
+                </button>
+
+                <button type="button"
+                        id="userActionCancelBtn"
+                        class="btn logout-cancel-btn">
+                    キャンセル
+                </button>
+            </div>
+        </dialog>
+
+        <!-- ② リーダー昇格確認ダイアログ -->
+        <dialog id="leaderConfirmDialog" class="logout-dialog">
+            <div>
+                <h2 id="leaderConfirmTitle" class="user-action-title"></h2>
+                <p class="dialog-sub-text">
+                    リーダーは、課題の登録・承認や<br>
+                    ユーザーの管理ができるようになります。
+                </p>
+            </div>
+
+            <div class="logout-dialog-buttons">
+                <button type="button"
+                        id="leaderConfirmCancelBtn"
+                        class="btn logout-cancel-btn">
+                    キャンセル
+                </button>
+
+                <form th:action="@{/team/{teamId}/members/promote_leader(teamId=${teamId})}"
+                      method="post">
+                    <input type="hidden" name="targetUserId" id="leaderTargetUserId">
+                    <input type="hidden" name="targetUserName" id="leaderTargetUserName">
+                    <button type="submit"
+                            class="btn leader-confirm-btn">
+                        リーダーにする
+                    </button>
+                </form>
+            </div>
+        </dialog>
+
+        <!-- ③ チーム除外確認ダイアログ -->
+        <dialog id="removeMemberConfirmDialog" class="logout-dialog">
+            <h2 id="removeConfirmTitle" class="user-action-title"></h2>
+
+            <div class="logout-dialog-buttons">
+                <button type="button"
+                        id="removeConfirmCancelBtn"
+                        class="btn logout-cancel-btn">
+                    キャンセル
+                </button>
+
+                <form th:action="@{/team/{teamId}/members/remove(teamId=${teamId})}"
+                      method="post">
+                    <input type="hidden" name="targetUserId" id="removeTargetUserId">
+                    <input type="hidden" name="targetUserName" id="removeTargetUserName">
+                    <button type="submit"
+                            class="btn logout-confirm-btn">
+                        チームから外す
+                    </button>
+                </form>
+            </div>
+        </dialog>
 
         <!-- チーム削除 -->
         <button type="button"
@@ -171,23 +249,18 @@
                 <!-- 削除 -->
                 <form th:action="@{/team_delete/{teamId}(teamId=${teamId})}"
                     method="post">
-
                     <button type="submit"
                             class="btn logout-confirm-btn">
                         削除
                     </button>
-
                 </form>
 
             </div>
 
         </dialog>
 
-        <!-- 成功メッセージ -->
-        <div th:if="${successMessage}" class="team-result-message">
-            <span class="team-result-icon">✔</span>
-            <span th:text="${successMessage}"></span>
-        </div>
+        <!-- スナックバー -->
+        <div th:replace="~{snackbar :: snackbar}"></div>
 
     </main>
 
@@ -216,6 +289,67 @@
                 alert("招待コードのコピーに失敗しました");
             }
         }
+
+        // 権限操作のダイアログ
+        const userActionDialog = document.getElementById("userActionDialog");
+        const leaderConfirmDialog = document.getElementById("leaderConfirmDialog");
+        const removeMemberConfirmDialog = document.getElementById("removeMemberConfirmDialog");
+
+        let selectedUser = { id: "", name: "" };
+
+        // ① 「…」押下時：操作ダイアログを開く
+        function openUserActionDialog(button) {
+            selectedUser = {
+                id: button.dataset.userId || "",
+                name: button.dataset.userName || ""
+            };
+
+            document.getElementById("actionDialogUserLabel").textContent =
+                `${selectedUser.name}`;
+
+            if (userActionDialog && !userActionDialog.open) {
+                userActionDialog.showModal();
+            }
+        }
+
+        // ①の「キャンセル」：操作ダイアログを閉じる
+        document.getElementById("userActionCancelBtn")?.addEventListener("click", () => {
+            userActionDialog.close();
+        });
+
+        // ①の「リーダーにする」：②へ切り替え
+        document.getElementById("openLeaderConfirmBtn")?.addEventListener("click", () => {
+            document.getElementById("leaderConfirmTitle").textContent =
+                `${selectedUser.name}さんをリーダーにしますか？`;
+            document.getElementById("leaderTargetUserId").value = selectedUser.id;
+            document.getElementById("leaderTargetUserName").value = selectedUser.name;
+
+            userActionDialog.close();
+            leaderConfirmDialog.showModal();
+        });
+
+        // ②の「キャンセル」：1つ前（①）へ戻る
+        document.getElementById("leaderConfirmCancelBtn")?.addEventListener("click", () => {
+            leaderConfirmDialog.close();
+            userActionDialog.showModal();
+        });
+
+        // ①の「チームから外す」：③へ切り替え
+        document.getElementById("openRemoveConfirmBtn")?.addEventListener("click", () => {
+            document.getElementById("removeConfirmTitle").textContent =
+                `${selectedUser.name}さんをチームから外しますか？`;
+            document.getElementById("removeTargetUserId").value = selectedUser.id;
+            document.getElementById("removeTargetUserName").value = selectedUser.name;
+
+            userActionDialog.close();
+            removeMemberConfirmDialog.showModal();
+        });
+
+        // ③の「キャンセル」：1つ前（①）へ戻る
+        document.getElementById("removeConfirmCancelBtn")?.addEventListener("click", () => {
+            removeMemberConfirmDialog.close();
+            userActionDialog.showModal();
+        });
 
         // チーム削除確認ダイアログ
         // ダイアログとボタンを取得

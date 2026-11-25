@@ -985,6 +985,73 @@ input[type=password] {
     background: #c90000;
 }
 
+/* 権限操作のダイアログ */
+/* ユーザー操作ダイアログ（.logout-dialog をベースに高さと縦並びを調整） */
+.user-action-dialog {
+    height: auto;
+    min-height: 230px;
+    gap: 16px;
+}
+
+.user-action-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.user-action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+/* 枠線ボタン（リーダーにする / チームから外す） */
+.action-outline-btn {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    background: #fff;
+    cursor: pointer;
+}
+
+.action-leader-btn {
+    color: #e07b00;
+    border: 2px solid #e07b00;
+}
+
+.action-leader-btn:hover {
+    background: #fff6eb;
+}
+
+.action-remove-btn {
+    color: #e60000;
+    border: 2px solid #e60000;
+}
+
+.action-remove-btn:hover {
+    background: #fff0f0;
+}
+
+/* 「リーダーにする」確定ボタン（オレンジ塗りつぶし） */
+.leader-confirm-btn {
+    background: #e07b00;
+    color: #fff;
+}
+
+.leader-confirm-btn:hover {
+    background: #c56a00;
+}
+
+/* 補足説明文 */
+.dialog-sub-text {
+    margin: 6px 0 0;
+    font-size: 0.85rem;
+    color: #444;
+    line-height: 1.5;
+}
+
 /* 課題一覧画面 */
 a.app-title { display: block; color: #fff; text-decoration: none; }
 .btn-link { display: block; text-align: center; text-decoration: none; box-sizing: border-box; }
