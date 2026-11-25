@@ -44,10 +44,8 @@ public class PasswordChangeController {
         }
 
         try {
-            Object idTokenObj = session.getAttribute("idToken");
-            String idToken = idTokenObj == null ? "" : idTokenObj.toString();
-
-            boolean updated = authClient.changePassword(idToken,form.get_currently_password(),form.get_new_password());
+           
+            boolean updated = authClient.changePassword(form.get_currently_password(),form.get_new_password());
             if (!updated) {
                 model.addAttribute("errorMessage", "現在のパスワードが間違っています");
                 return "password_change";
