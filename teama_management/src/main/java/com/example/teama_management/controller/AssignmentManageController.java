@@ -1,3 +1,4 @@
+
 package com.example.teama_management.controller;
 
 import com.example.teama_management.repository.AssignmentManageRepository;
@@ -7,8 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.util.Map;
 
 @Controller
@@ -55,6 +56,158 @@ public class AssignmentManageController {
                     "errorMessage", "課題管理画面の表示に失敗しました");
             return "redirect:/assignments";
         }
+    }
+
+    // ユーザーの提出を承認する
+    @PostMapping("/assignments/{id}/users/{userId}/approve")
+    public String approveSubmission(
+            @PathVariable("id") String assignmentId,
+            @PathVariable("userId") String userId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String uid = (String) session.getAttribute("loginUid");
+
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            boolean approved = assignmentManageRepository.approveSubmission(
+                    assignmentId, userId, uid);
+
+            if (approved) {
+                redirectAttributes.addFlashAttribute(
+                        "snackbarMessage", "提出を承認しました");
+            } else {
+                redirectAttributes.addFlashAttribute(
+                        "errorMessage", "承認できませんでした。提出状況を確認してください");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "提出の承認に失敗しました");
+        }
+
+        return "redirect:/assignments/" + assignmentId + "/manage";
+    }
+
+    // チーム全体の提出を承認する
+    @PostMapping("/assignments/{id}/users/team/approve")
+    public String approveTeamSubmission(
+            @PathVariable("id") String assignmentId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String uid = (String) session.getAttribute("loginUid");
+
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            boolean approved = assignmentManageRepository.approveSubmission(
+                    assignmentId, "team", uid);
+
+            if (approved) {
+                redirectAttributes.addFlashAttribute(
+                        "snackbarMessage", "提出を承認しました");
+            } else {
+                redirectAttributes.addFlashAttribute(
+                        "errorMessage", "承認できませんでした。提出状況を確認してください");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "提出の承認に失敗しました");
+        }
+
+        return "redirect:/assignments/" + assignmentId + "/manage";
+    }
+
+    // ユーザーに再提出を依頼する
+    @PostMapping("/assignments/{id}/users/{userId}/resubmit")
+    public String requestResubmission(
+            @PathVariable("id") String assignmentId,
+            @PathVariable("userId") String userId,
+            @RequestParam("reason") String reason,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String uid = (String) session.getAttribute("loginUid");
+
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        if (reason == null || reason.isBlank()) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "再提出理由を入力してください");
+            return "redirect:/assignments/" + assignmentId + "/manage";
+        }
+
+        try {
+            boolean requested = assignmentManageRepository.requestResubmission(
+                    assignmentId, userId, uid, reason.trim());
+
+            if (requested) {
+                redirectAttributes.addFlashAttribute(
+                        "snackbarMessage", "再提出を依頼しました");
+            } else {
+                redirectAttributes.addFlashAttribute(
+                        "errorMessage", "再提出を依頼できませんでした。提出状況を確認してください");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "再提出の依頼に失敗しました");
+        }
+
+        return "redirect:/assignments/" + assignmentId + "/manage";
+    }
+
+    // チーム全体に再提出を依頼する
+    @PostMapping("/assignments/{id}/users/team/resubmit")
+    public String requestTeamResubmission(
+            @PathVariable("id") String assignmentId,
+            @RequestParam("reason") String reason,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String uid = (String) session.getAttribute("loginUid");
+
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        if (reason == null || reason.isBlank()) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "再提出理由を入力してください");
+            return "redirect:/assignments/" + assignmentId + "/manage";
+        }
+
+        try {
+            boolean requested = assignmentManageRepository.requestResubmission(
+                    assignmentId, "team", uid, reason.trim());
+
+            if (requested) {
+                redirectAttributes.addFlashAttribute(
+                        "snackbarMessage", "再提出を依頼しました");
+            } else {
+                redirectAttributes.addFlashAttribute(
+                        "errorMessage", "再提出を依頼できませんでした。提出状況を確認してください");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "再提出の依頼に失敗しました");
+        }
+
+        return "redirect:/assignments/" + assignmentId + "/manage";
     }
 
     // 課題を削除する

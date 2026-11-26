@@ -1,4 +1,5 @@
 package com.example.teama_management.repository;
+
 import com.example.teama_management.model.AssignmentItem;
 import com.example.teama_management.model.AssignmentStatus;
 import com.google.cloud.Timestamp;
@@ -8,7 +9,6 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import org.springframework.stereotype.Repository;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -73,9 +73,18 @@ public class AssignmentRepository {
             // ステータスを取得する
             AssignmentStatus st;
 
-            if (leader) {
-                // リーダーは課題全体のステータスを取得する
+            if (teamTarget) {
+                // チーム課題は課題全体のステータスを取得する
                 st = AssignmentStatus.fromCode(d.getString("status"));
+
+            } else if (leader) {
+                // リーダーは担当者の進捗状況を取得する
+                if (ids.isEmpty()) {
+                    st = AssignmentStatus.NOT_STARTED;
+                } else {
+                    st = findUserProgressStatus(d.getId(), ids.get(0));
+                }
+
             } else {
                 // ユーザーは自分個人の進捗状況を取得する
                 st = findUserProgressStatus(d.getId(), uid);

@@ -21,8 +21,12 @@ public class AssignmentListController {
             new String[]{"inProgress", "着手中"}, new String[]{"waitingApproval", "承認待ち"},
             new String[]{"resubmit", "再提出"}, new String[]{"approved", "完了"});
     private static final List<String[]> LEADER_FILTERS = List.of(
-            new String[]{"all", "すべて"}, new String[]{"waitingApproval", "承認待ち"},
-            new String[]{"approved", "承認済み"});
+        new String[]{"all", "すべて"},
+        new String[]{"notStarted", "未着手"},
+        new String[]{"inProgress", "着手中"},
+        new String[]{"waitingApproval", "承認待ち"},
+        new String[]{"resubmit", "再提出"},
+        new String[]{"approved", "完了"});
 
     private final TeamRepository teamRepository;
     private final AssignmentRepository assignmentRepository;

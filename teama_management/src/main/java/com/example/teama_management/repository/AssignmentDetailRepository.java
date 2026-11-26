@@ -2,8 +2,10 @@ package com.example.teama_management.repository;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.SetOptions;
 import org.springframework.stereotype.Repository;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -90,10 +92,71 @@ public class AssignmentDetailRepository {
         assignment.put("hasAttachment",
                 attachmentUrl != null && !attachmentUrl.isBlank());
 
-        // ユーザー個人の進捗状況を取得する
-        String status = findUserProgressStatus(assignmentId, loginUid);
+        // 課題の種類を取得する
+        String targetType = assignmentDoc.getString("targetType");
+
+        // 課題のステータスを取得する
+        String status;
+
+        if ("team".equals(targetType)) {
+            // チーム課題の場合は課題のステータスを取得する
+            status = valueOrDefault(
+                    assignmentDoc.getString("status"), "notStarted");
+        } else {
+            // 個人課題の場合はユーザーごとの進捗状況を取得する
+            status = findUserProgressStatus(assignmentId, loginUid);
+        }
+
         assignment.put("status", status);
         assignment.put("statusLabel", statusLabel(status));
+
+        // 再提出理由を取得する
+        String submissionId = "team".equals(targetType)
+                ? assignmentId + "_team"
+                : assignmentId + "_" + loginUid;
+
+        DocumentSnapshot submissionDoc = firestore.collection("submissions")
+                .document(submissionId)
+                .get()
+                .get();
+
+        String resubmissionReason = "";
+        String submittedByName = "";
+
+        if (submissionDoc.exists()
+                && ("resubmit".equals(status) || "再提出".equals(status))) {
+
+            // 再提出理由を取得する
+            resubmissionReason = valueOrDefault(
+                    submissionDoc.getString("resubmissionReason"), "");
+
+            // 課題を提出したユーザーIDを取得する
+            String submittedBy = submissionDoc.getString("submittedBy");
+
+            // 個人課題で提出者IDがない場合はログインユーザーIDを使用する
+            if ((submittedBy == null || submittedBy.isBlank())
+                    && !"team".equals(targetType)) {
+                submittedBy = loginUid;
+            }
+
+            // 提出したユーザーの名前を取得する
+            if (submittedBy != null && !submittedBy.isBlank()) {
+                DocumentSnapshot submittedUserDoc = firestore.collection("users")
+                        .document(submittedBy)
+                        .get()
+                        .get();
+
+                if (submittedUserDoc.exists()) {
+                    submittedByName = valueOrDefault(
+                            submittedUserDoc.getString("username"), "ユーザー名なし");
+                }
+            }
+        }
+
+        assignment.put("resubmissionReason", resubmissionReason);
+        assignment.put("submittedByName", submittedByName);
+        assignment.put("showResubmissionReason",
+                !resubmissionReason.isBlank());
 
         return assignment;
     }
@@ -144,29 +207,40 @@ public class AssignmentDetailRepository {
             throw new IllegalArgumentException("変更する権限がありません");
         }
 
-        // 既存の進捗データを取得する
-        QuerySnapshot result = firestore.collection("taskProgress")
-                .whereEqualTo("assignmentId", assignmentId)
-                .whereEqualTo("userId", loginUid)
-                .get()
-                .get();
+        String targetType = assignmentDoc.getString("targetType");
 
-        Map<String, Object> progressData = new HashMap<>();
-        progressData.put("assignmentId", assignmentId);
-        progressData.put("userId", loginUid);
-        progressData.put("status", status);
-
-        if (result.isEmpty()) {
-            // 進捗データがない場合は新規登録する
-            firestore.collection("taskProgress")
-                    .document()
-                    .set(progressData)
-                    .get();
-        } else {
-            // 進捗データがある場合は更新する
-            result.getDocuments().get(0).getReference()
+        if ("team".equals(targetType)) {
+            // チーム課題の場合は課題のステータスを更新する
+            firestore.collection("assignments")
+                    .document(assignmentId)
                     .update("status", status)
                     .get();
+
+        } else {
+            // 個人課題の場合は既存の進捗データを取得する
+            QuerySnapshot result = firestore.collection("taskProgress")
+                    .whereEqualTo("assignmentId", assignmentId)
+                    .whereEqualTo("userId", loginUid)
+                    .get()
+                    .get();
+
+            Map<String, Object> progressData = new HashMap<>();
+            progressData.put("assignmentId", assignmentId);
+            progressData.put("userId", loginUid);
+            progressData.put("status", status);
+
+            if (result.isEmpty()) {
+                // 進捗データがない場合は新規登録する
+                firestore.collection("taskProgress")
+                        .document()
+                        .set(progressData)
+                        .get();
+            } else {
+                // 進捗データがある場合は更新する
+                result.getDocuments().get(0).getReference()
+                        .update("status", status)
+                        .get();
+            }
         }
     }
 
@@ -192,41 +266,71 @@ public class AssignmentDetailRepository {
             throw new IllegalArgumentException("提出する権限がありません");
         }
 
-        // 既存の進捗データを取得する
-        QuerySnapshot result = firestore.collection("taskProgress")
-                .whereEqualTo("assignmentId", assignmentId)
-                .whereEqualTo("userId", loginUid)
-                .get()
-                .get();
+        // 課題の種類を取得する
+        String targetType = assignmentDoc.getString("targetType");
 
         // 提出日時を取得する
         Timestamp submittedAt = Timestamp.now();
 
-        Map<String, Object> progressData = new HashMap<>();
-        progressData.put("assignmentId", assignmentId);
-        progressData.put("userId", loginUid);
-        progressData.put("status", "waitingApproval");
-        progressData.put("submittedAt", submittedAt);
-
-        if (result.isEmpty()) {
-            // 進捗データがない場合は新規登録する
-            firestore.collection("taskProgress")
-                    .document()
-                    .set(progressData)
-                    .get();
-        } else {
-            // 進捗データがある場合は更新する
-            result.getDocuments().get(0).getReference()
+        if ("team".equals(targetType)) {
+            // チーム課題の場合は課題のステータスを承認待ちに変更する
+            firestore.collection("assignments")
+                    .document(assignmentId)
                     .update(
                             "status", "waitingApproval",
                             "submittedAt", submittedAt)
                     .get();
+
+        } else {
+            // 個人課題の場合は既存の進捗データを取得する
+            QuerySnapshot result = firestore.collection("taskProgress")
+                    .whereEqualTo("assignmentId", assignmentId)
+                    .whereEqualTo("userId", loginUid)
+                    .get()
+                    .get();
+
+            Map<String, Object> progressData = new HashMap<>();
+            progressData.put("assignmentId", assignmentId);
+            progressData.put("userId", loginUid);
+            progressData.put("status", "waitingApproval");
+            progressData.put("submittedAt", submittedAt);
+
+            if (result.isEmpty()) {
+                // 進捗データがない場合は新規登録する
+                firestore.collection("taskProgress")
+                        .document()
+                        .set(progressData)
+                        .get();
+            } else {
+                // 進捗データがある場合は更新する
+                result.getDocuments().get(0).getReference()
+                        .update(
+                                "status", "waitingApproval",
+                                "submittedAt", submittedAt)
+                        .get();
+            }
         }
 
-        // 課題のステータスを承認待ちに変更する
-        firestore.collection("assignments")
-                .document(assignmentId)
-                .update("status", "承認待ち")
+        // 提出情報を登録する
+        String submissionId = "team".equals(targetType)
+                ? assignmentId + "_team"
+                : assignmentId + "_" + loginUid;
+
+        Map<String, Object> submissionData = new HashMap<>();
+        submissionData.put("assignmentId", assignmentId);
+        submissionData.put("targetType", targetType);
+        submissionData.put("userId",
+                "team".equals(targetType) ? "team" : loginUid);
+        submissionData.put("submittedBy", loginUid);
+        submissionData.put("status", "waitingApproval");
+        submissionData.put("submittedAt", submittedAt);
+
+        // 前回の再提出理由を削除する
+        submissionData.put("resubmissionReason", FieldValue.delete());
+
+        firestore.collection("submissions")
+                .document(submissionId)
+                .set(submissionData, SetOptions.merge())
                 .get();
     }
 

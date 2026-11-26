@@ -5,7 +5,7 @@ public enum AssignmentStatus {
     IN_PROGRESS("inProgress", "着手中", "着手中", "st-orange"),
     WAITING_APPROVAL("waitingApproval", "承認待ち", "承認待ち", "st-blue"),
     RESUBMIT("resubmit", "再提出", "再提出", "st-red"),
-    APPROVED("approved", "完了", "承認済み", "st-green");
+    APPROVED("approved", "完了", "完了", "st-green");
 
     private final String code;
     private final String userLabel;
