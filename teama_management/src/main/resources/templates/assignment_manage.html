@@ -43,8 +43,23 @@
             </div>
         </section>
 
-        <!-- ユーザー別の進捗 -->
-        <section>
+        <!-- チームに出した課題：チームのユーザー一覧 -->
+        <section th:if="${assignment.targetType == 'team'}">
+            <h2 class="assignment-progress-title">チームのユーザー</h2>
+
+            <div class="assignment-progress-list" th:if="${!#lists.isEmpty(assignment.userProgress)}">
+                <div class="assignment-progress-item" th:each="user : ${assignment.userProgress}">
+                    <span class="assignment-progress-name" th:text="${user.name}">ユーザー名</span>
+                </div>
+            </div>
+
+            <p class="assignment-empty" th:if="${#lists.isEmpty(assignment.userProgress)}">
+                チームのユーザーはいません
+            </p>
+        </section>
+
+        <!-- 個人に出した課題：ユーザー別の進捗 -->
+        <section th:if="${assignment.targetType == 'individual'}">
             <h2 class="assignment-progress-title">ユーザー別の進捗</h2>
 
             <div class="assignment-progress-list" th:if="${!#lists.isEmpty(assignment.userProgress)}">
