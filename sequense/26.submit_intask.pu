@@ -28,7 +28,7 @@ else 「提出する」を押下した場合
     deactivate SubmitConfirmDialog
     activate SubmitAssignmentController
     SubmitAssignmentController -> SubmitAssignmentController : 提出条件を検証する
-    SubmitAssignmentController -> Firestore : 課題のステータスを承認待ちに更新し、提出情報を保存する
+    SubmitAssignmentController -> Firestore : 提出情報をFirestoreに保存する
     activate Firestore
     return 保存結果
     alt 課題の提出処理に失敗した場合

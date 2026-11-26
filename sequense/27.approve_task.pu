@@ -27,7 +27,7 @@ else 「承認」を押下した場合
     ApproveConfirmDialog -> ApproveAssignmentController : 承認を要求する
     deactivate ApproveConfirmDialog
     activate ApproveAssignmentController
-    ApproveAssignmentController -> Firestore : 対象の課題を承認済みの状態に更新して保存する
+    ApproveAssignmentController -> Firestore : 対象ユーザーの提出情報を承認済みの状態に更新し、確認者ユーザーIDと確認日時を保存する
     activate Firestore
     return 保存結果
     alt 課題の承認に失敗した場合
