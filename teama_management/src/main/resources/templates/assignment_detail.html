@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -42,9 +41,12 @@
 
             <!-- 提出前 -->
             <form th:if="${assignment.status != 'waitingApproval'
+                        and assignment.status != '承認待ち'
                         and assignment.status != 'approved'
                         and assignment.status != 'completed'
-                        and assignment.status != '承認済み'}"
+                        and assignment.status != '承認済み'
+                        and assignment.status != 'resubmit'
+                        and assignment.status != '再提出'}"
                 th:action="@{/assignments/{id}/status(id=${assignment.id})}"
                 method="post">
 
@@ -86,6 +88,19 @@
                 </span>
             </div>
 
+            <!-- 再提出 -->
+            <div th:if="${assignment.status == 'resubmit'
+                        or assignment.status == '再提出'}"
+                class="assignment-status-row">
+
+                <span class="assignment-status-title">ステータス</span>
+
+                <span class="assignment-submitted-status"
+                      style="background-color: red;">
+                    再提出
+                </span>
+            </div>
+
             <!-- 承認済み -->
             <div th:if="${assignment.status == 'approved'
                         or assignment.status == 'completed'
@@ -110,6 +125,16 @@
 
         </div>
 
+        <!-- 再提出メッセージ -->
+        <div th:if="${assignment.showResubmissionReason}"
+             class="assignment-resubmit-message">
+
+            再提出をお願いされました<br>
+            <span th:text="${assignment.submittedByName}"></span>：
+            <span th:text="${assignment.resubmissionReason}"></span>
+
+        </div>
+
         <!-- リーダーからの説明 -->
         <section class="detail-section">
             <h3>リーダーからの説明</h3>
@@ -127,15 +152,23 @@
         <section class="detail-section">
             <h3>提出資料</h3>
 
-            <p class="detail-note">
+            <p class="detail-note"
+               th:if="${assignment.status != 'resubmit'
+                       and assignment.status != '再提出'}">
                 ファイル添付機能は次の段階で実装予定
+            </p>
+
+            <p class="detail-note"
+               th:if="${assignment.status == 'resubmit'
+                       or assignment.status == '再提出'}">
+                提出資料を修正して再提出してください。
             </p>
         </section>
 
         <!-- 提出 -->
         <section class="assignment-submit-section">
 
-            <!-- 提出前 -->
+            <!-- 提出前・再提出 -->
             <button th:if="${assignment.status != 'waitingApproval'
                             and assignment.status != '承認待ち'
                             and assignment.status != 'approved'
@@ -144,19 +177,36 @@
                     type="button"
                     class="btn btn-green"
                     onclick="document.getElementById('submitDialog').showModal()">
-                提出する
+
+                <span th:if="${assignment.status == 'resubmit'
+                            or assignment.status == '再提出'}">
+                    再提出する
+                </span>
+
+                <span th:unless="${assignment.status == 'resubmit'
+                                or assignment.status == '再提出'}">
+                    提出する
+                </span>
+
             </button>
 
             <!-- 提出後 -->
             <button th:if="${assignment.status == 'waitingApproval'
-                            or assignment.status == '承認待ち'
-                            or assignment.status == 'approved'
+                            or assignment.status == '承認待ち'}"
+                    type="button"
+                    class="btn assignment-submitted-button"
+                    disabled>
+                提出済み（承認待ち）
+            </button>
+
+            <!-- 承認済み -->
+            <button th:if="${assignment.status == 'approved'
                             or assignment.status == 'completed'
                             or assignment.status == '承認済み'}"
                     type="button"
                     class="btn assignment-submitted-button"
                     disabled>
-                提出済み（承認待ち）
+                提出済み（完了）
             </button>
 
         </section>
@@ -173,7 +223,7 @@
 
             <!-- 注意事項 -->
             <p class="assignment-submit-message">
-                提出すると、リーダーに通知されます。<br>
+                提出すると、リーダーが確認できる状態になります。<br>
                 提出後は、承認されるまで提出物を変更できません。
             </p>
 

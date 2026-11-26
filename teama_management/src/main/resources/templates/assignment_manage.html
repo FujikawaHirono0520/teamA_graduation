@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -43,31 +44,240 @@
             </div>
         </section>
 
-        <!-- チームに出した課題：チームのユーザー一覧 -->
+        <!-- チームに出した課題：チーム全体の承認・再提出 -->
         <section th:if="${assignment.targetType == 'team'}">
-            <h2 class="assignment-progress-title">チームのユーザー</h2>
 
-            <div class="assignment-progress-list" th:if="${!#lists.isEmpty(assignment.userProgress)}">
-                <div class="assignment-progress-item" th:each="user : ${assignment.userProgress}">
-                    <span class="assignment-progress-name" th:text="${user.name}">ユーザー名</span>
-                </div>
+            <!-- 承認待ちの場合のみボタンを表示 -->
+            <div class="team-create-buttons assignment-review-buttons"
+                 th:if="${assignment.showTeamReviewButtons}">
+
+                <!-- 再提出を依頼する -->
+                <form>
+                    <button type="button"
+                            class="team-cancel-btn"
+                            onclick="document.getElementById('teamResubmitDialog').showModal()">
+                        再提出を依頼する
+                    </button>
+                </form>
+
+                <!-- 承認する -->
+                <form>
+                    <button type="button"
+                            class="team-submit-btn"
+                            onclick="document.getElementById('teamApproveDialog').showModal()">
+                        承認する
+                    </button>
+                </form>
+
             </div>
 
-            <p class="assignment-empty" th:if="${#lists.isEmpty(assignment.userProgress)}">
-                チームのユーザーはいません
-            </p>
+            <!-- チーム課題の再提出確認ダイアログ -->
+            <dialog id="teamResubmitDialog"
+                    class="logout-dialog assignment-delete-dialog assignment-resubmit-dialog">
+
+                <form th:action="@{/assignments/{id}/users/team/resubmit(id=${assignment.id})}"
+                      method="post">
+
+                    <h1>
+                        課題名：
+                        <span th:text="${assignment.title}">課題名</span>
+                    </h1>
+
+                    <label>
+                        再提出を依頼する理由を入力してください。<br>
+                        理由は、提出した人に通知で届きます。
+                    </label>
+
+                    <div class="assignment-resubmit-input">
+                        <textarea name="reason"
+                                  placeholder="再提出の理由を入力してください"
+                                  required></textarea>
+                    </div>
+
+                    <div class="logout-dialog-buttons">
+
+                        <!-- キャンセル -->
+                        <button type="button"
+                                class="btn logout-cancel-btn"
+                                onclick="document.getElementById('teamResubmitDialog').close()">
+                            キャンセル
+                        </button>
+
+                        <!-- 確定 -->
+                        <button type="submit" class="btn logout-confirm-btn">
+                            確定
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </dialog>
+
+            <!-- チーム課題の承認確認ダイアログ -->
+            <dialog id="teamApproveDialog"
+                    class="logout-dialog assignment-submit-dialog">
+
+                <h1>
+                    課題名：
+                    <span th:text="${assignment.title}">課題名</span>
+                </h1>
+
+                <p class="assignment-submit-message">
+                    この課題を承認してもよろしいですか？<br>
+                    承認すると課題が完了になります。
+                </p>
+
+                <div class="logout-dialog-buttons">
+
+                    <!-- キャンセル -->
+                    <button type="button"
+                            class="btn logout-cancel-btn"
+                            onclick="document.getElementById('teamApproveDialog').close()">
+                        キャンセル
+                    </button>
+
+                    <!-- 承認 -->
+                    <form th:action="@{/assignments/{id}/users/team/approve(id=${assignment.id})}"
+                          method="post">
+                        <button type="submit"
+                                class="btn assignment-submit-confirm-btn">
+                            承認
+                        </button>
+                    </form>
+
+                </div>
+
+            </dialog>
+
         </section>
 
         <!-- 個人に出した課題：ユーザー別の進捗 -->
         <section th:if="${assignment.targetType == 'individual'}">
-            <h2 class="assignment-progress-title">ユーザー別の進捗</h2>
+
+            <!-- 承認待ちのユーザーがいない場合のみ見出しを表示 -->
+            <h2 class="assignment-progress-title"
+                th:if="${assignment.showProgressTitle}">
+                ユーザー別の進捗
+            </h2>
 
             <div class="assignment-progress-list" th:if="${!#lists.isEmpty(assignment.userProgress)}">
-                <div class="assignment-progress-item" th:each="user : ${assignment.userProgress}">
-                    <span class="assignment-progress-name" th:text="${user.name}">ユーザー名</span>
-                    <span class="assignment-progress-status"
-                          th:classappend="${user.statusClass}"
-                          th:text="${user.statusLabel}">未着手</span>
+                <div class="assignment-progress-item"
+                     th:each="user : ${assignment.userProgress}"
+                     th:classappend="${user.status == 'waitingApproval'} ? ' assignment-review-item' : ''">
+
+                    <!-- 承認待ちではない場合はユーザー名と進捗状況を表示 -->
+                    <div th:if="${user.status != 'waitingApproval'}">
+                        <span class="assignment-progress-name" th:text="${user.name}">ユーザー名</span>
+
+                        <span class="assignment-progress-status"
+                              th:classappend="${user.statusClass}"
+                              th:text="${user.statusLabel}">未着手</span>
+                    </div>
+
+                    <!-- 承認待ちの場合はボタンだけ表示 -->
+                    <div class="team-create-buttons assignment-review-buttons"
+                         th:if="${user.status == 'waitingApproval'}">
+
+                        <!-- 再提出を依頼する -->
+                        <form>
+                            <button type="button"
+                                    class="team-cancel-btn"
+                                    th:attr="onclick=|document.getElementById('resubmitDialog-${user.id}').showModal()|">
+                                再提出を依頼する
+                            </button>
+                        </form>
+
+                        <!-- 承認する -->
+                        <form>
+                            <button type="button"
+                                    class="team-submit-btn"
+                                    th:attr="onclick=|document.getElementById('approveDialog-${user.id}').showModal()|">
+                                承認する
+                            </button>
+                        </form>
+
+                    </div>
+
+                    <!-- 個人課題の再提出確認ダイアログ -->
+                    <dialog th:id="|resubmitDialog-${user.id}|"
+                            class="logout-dialog assignment-delete-dialog assignment-resubmit-dialog">
+
+                        <form th:action="@{/assignments/{id}/users/{userId}/resubmit(id=${assignment.id}, userId=${user.id})}"
+                              method="post">
+
+                            <h1>
+                                課題名：
+                                <span th:text="${assignment.title}">課題名</span>
+                            </h1>
+
+                            <label>
+                                再提出を依頼する理由を入力してください。<br>
+                                理由は、提出した人に通知で届きます。
+                            </label>
+
+                            <div class="assignment-resubmit-input">
+                                <textarea name="reason"
+                                          placeholder="再提出の理由を入力してください"
+                                          required></textarea>
+                            </div>
+
+                            <div class="logout-dialog-buttons">
+
+                                <!-- キャンセル -->
+                                <button type="button"
+                                        class="btn logout-cancel-btn"
+                                        th:attr="onclick=|document.getElementById('resubmitDialog-${user.id}').close()|">
+                                    キャンセル
+                                </button>
+
+                                <!-- 確定 -->
+                                <button type="submit" class="btn logout-confirm-btn">
+                                    確定
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </dialog>
+
+                    <!-- 個人課題の承認確認ダイアログ -->
+                    <dialog th:id="|approveDialog-${user.id}|"
+                            class="logout-dialog assignment-submit-dialog">
+
+                        <h1>
+                            課題名：
+                            <span th:text="${assignment.title}">課題名</span>
+                        </h1>
+
+                        <p class="assignment-submit-message">
+                            この提出を承認してもよろしいですか？<br>
+                            承認すると課題が完了になります。
+                        </p>
+
+                        <div class="logout-dialog-buttons">
+
+                            <!-- キャンセル -->
+                            <button type="button"
+                                    class="btn logout-cancel-btn"
+                                    th:attr="onclick=|document.getElementById('approveDialog-${user.id}').close()|">
+                                キャンセル
+                            </button>
+
+                            <!-- 承認 -->
+                            <form th:action="@{/assignments/{id}/users/{userId}/approve(id=${assignment.id}, userId=${user.id})}"
+                                  method="post">
+                                <button type="submit"
+                                        class="btn assignment-submit-confirm-btn">
+                                    承認
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </dialog>
+
                 </div>
             </div>
 
@@ -83,7 +293,8 @@
         </div>
 
         <!-- 課題削除確認ダイアログ -->
-        <dialog id="deleteDialog" class="logout-dialog assignment-delete-dialog">
+        <dialog id="deleteDialog"
+                class="logout-dialog assignment-delete-dialog assignment-resubmit-dialog">
 
             <h1>
                 課題名：
@@ -107,7 +318,7 @@
 
                 <!-- 削除 -->
                 <form th:action="@{/assignments/{id}/delete(id=${assignment.id})}"
-                    method="post">
+                      method="post">
                     <button type="submit" class="btn logout-confirm-btn">
                         削除
                     </button>
