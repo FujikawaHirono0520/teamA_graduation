@@ -5,7 +5,6 @@ import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QuerySnapshot;
 import org.springframework.stereotype.Repository;
-
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -47,8 +46,13 @@ public class AssignmentManageRepository {
         Map<String, Object> assignment = new HashMap<>();
         assignment.put("id", assignmentId);
         assignment.put("title", valueOrDefault(assignmentDoc.getString("title"), "課題名なし"));
+
+        // 課題の対象を取得する
+        String targetType = assignmentDoc.getString("targetType");
+        assignment.put("targetType", targetType);
+
         String targetName;
-        if ("team".equals(assignmentDoc.getString("targetType"))) {
+        if ("team".equals(targetType)) {
             DocumentSnapshot teamDoc = firestore.collection("teams")
                     .document(teamId)
                     .get()
@@ -60,10 +64,12 @@ public class AssignmentManageRepository {
         } else {
             targetName = "個人";
         }
+
         assignment.put("targetName", targetName);
         assignment.put("priorityLabel", priorityLabel(assignmentDoc.getString("priority")));
         assignment.put("dueDateText", formatDate(assignmentDoc.getTimestamp("dueDate")));
 
+        // 担当ユーザーの情報を取得する
         List<String> assigneeIds = getStringList(assignmentDoc.get("assigneeIds"));
         List<Map<String, String>> userProgress = new ArrayList<>();
 
@@ -78,13 +84,19 @@ public class AssignmentManageRepository {
             }
 
             String username = valueOrDefault(userDoc.getString("username"), userId);
-            String status = findUserProgressStatus(assignmentId, userId);
 
             Map<String, String> user = new HashMap<>();
             user.put("id", userId);
             user.put("name", username);
-            user.put("statusLabel", progressLabel(status));
-            user.put("statusClass", progressClass(status));
+
+            // 個人に出した課題の場合のみ進捗状況を取得する
+            if ("individual".equals(targetType)) {
+                String status = findUserProgressStatus(assignmentId, userId);
+
+                user.put("statusLabel", progressLabel(status));
+                user.put("statusClass", progressClass(status));
+            }
+
             userProgress.add(user);
         }
 
