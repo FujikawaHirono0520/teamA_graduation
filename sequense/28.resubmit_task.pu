@@ -32,7 +32,7 @@ else 「確定」を押下した場合
         ResubmitRequestController --> ResubmitReasonDialog : エラーメッセージ「再提出理由を入力してください」を表示する
         deactivate ResubmitReasonDialog
     else 再提出理由が入力されている場合
-        ResubmitRequestController -> Firestore : 再提出理由を保存し、課題の状態を再提出が必要な状態に更新する
+        ResubmitRequestController -> Firestore : 対象ユーザーの提出情報を再提出依頼中の状態に更新し、再提出理由、確認者ユーザーID、確認日時を保存する
         activate Firestore
         return 保存結果
         alt 再提出の依頼処理に失敗した場合
