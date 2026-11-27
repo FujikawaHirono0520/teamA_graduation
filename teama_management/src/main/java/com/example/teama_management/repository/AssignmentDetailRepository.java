@@ -40,13 +40,17 @@ public class AssignmentDetailRepository {
             return null;
         }
 
-        // ログインユーザーが課題の担当者か確認する
-        List<String> assigneeIds = getStringList(
-                assignmentDoc.get("assigneeIds"));
-
-        if (!assigneeIds.contains(loginUid)) {
+        // ログインユーザーが課題を表示できるか確認する
+        if (!hasAssignmentPermission(assignmentDoc, loginUid)) {
             return null;
         }
+
+        // 課題の種類を取得する
+        String targetType = assignmentDoc.getString("targetType");
+
+        // 担当者IDを取得する
+        List<String> assigneeIds = getStringList(
+                assignmentDoc.get("assigneeIds"));
 
         Map<String, Object> assignment = new HashMap<>();
 
@@ -91,9 +95,6 @@ public class AssignmentDetailRepository {
         String attachmentUrl = assignmentDoc.getString("attachmentUrl");
         assignment.put("hasAttachment",
                 attachmentUrl != null && !attachmentUrl.isBlank());
-
-        // 課題の種類を取得する
-        String targetType = assignmentDoc.getString("targetType");
 
         // 課題のステータスを取得する
         String status;
@@ -193,11 +194,8 @@ public class AssignmentDetailRepository {
             throw new IllegalArgumentException("課題が見つかりません");
         }
 
-        // ログインユーザーが課題の担当者か確認する
-        List<String> assigneeIds = getStringList(
-                assignmentDoc.get("assigneeIds"));
-
-        if (!assigneeIds.contains(loginUid)) {
+        // ログインユーザーが課題を変更できるか確認する
+        if (!hasAssignmentPermission(assignmentDoc, loginUid)) {
             throw new IllegalArgumentException("変更する権限がありません");
         }
 
@@ -252,11 +250,8 @@ public class AssignmentDetailRepository {
             throw new IllegalArgumentException("課題が見つかりません");
         }
 
-        // ログインユーザーが課題の担当者か確認する
-        List<String> assigneeIds = getStringList(
-                assignmentDoc.get("assigneeIds"));
-
-        if (!assigneeIds.contains(loginUid)) {
+        // ログインユーザーが課題を提出できるか確認する
+        if (!hasAssignmentPermission(assignmentDoc, loginUid)) {
             throw new IllegalArgumentException("提出する権限がありません");
         }
 
@@ -326,6 +321,37 @@ public class AssignmentDetailRepository {
                 .document(submissionId)
                 .set(submissionData, SetOptions.merge())
                 .get();
+    }
+
+    // 課題を表示・操作できるユーザーか確認する
+    private boolean hasAssignmentPermission(
+            DocumentSnapshot assignmentDoc, String loginUid) throws Exception {
+
+        String targetType = assignmentDoc.getString("targetType");
+
+        if ("team".equals(targetType)) {
+            // チーム課題の場合はチームメンバーか確認する
+            String teamId = assignmentDoc.getString("teamId");
+
+            if (teamId == null) {
+                return false;
+            }
+
+            QuerySnapshot memberResult = firestore.collection("teammembers")
+                    .whereEqualTo("teamId", teamId)
+                    .whereEqualTo("userId", loginUid)
+                    .get()
+                    .get();
+
+            return !memberResult.isEmpty();
+
+        } else {
+            // 個人課題の場合は担当者か確認する
+            List<String> assigneeIds = getStringList(
+                    assignmentDoc.get("assigneeIds"));
+
+            return assigneeIds.contains(loginUid);
+        }
     }
 
     // 優先度の表示名を取得する
