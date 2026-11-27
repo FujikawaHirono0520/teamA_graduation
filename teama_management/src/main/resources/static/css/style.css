@@ -1839,3 +1839,192 @@ a.app-title { display: block; color: #fff; text-decoration: none; }
     font-weight: bold;
     line-height: 1.5;
 }
+
+/* 課題詳細画面 コメント・チェックリスト */
+
+/* コメント・チェックリストの外枠 */
+.assignment-detail-block {
+    margin-top: 16px;
+    padding: 0;
+    border: none;
+    background: none;
+}
+
+/* セクションタイトル */
+.assignment-block-title {
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+/* コメント一覧 */
+.assignment-comment {
+    margin-bottom: 8px;
+    padding: 12px;
+    border-radius: 5px;
+    background: #e3f2fd;
+}
+
+/* コメント投稿者・日時 */
+.assignment-comment-info {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0;
+    color: #222;
+    font-size: 0.75rem;
+}
+
+/* コメント本文 */
+.assignment-comment-body {
+    margin-top: 5px;
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
+}
+
+/* コメント入力欄と送信ボタン */
+.assignment-comment-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* コメント入力欄 */
+.assignment-comment-form input {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    border: 1px solid #999;
+    border-radius: 5px;
+    font-size: 0.85rem;
+}
+
+/* コメント送信ボタン */
+.assignment-comment-form .btn-blue {
+    flex-shrink: 0;
+    width: 74px;
+    height: 36px;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+    border: none;
+    border-radius: 5px;
+    background: #2196d2;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* チェックリスト一覧 */
+.assignment-checklist-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    min-height: 36px;
+    padding: 5px 8px;
+    border: none;
+}
+
+/* チェック状態変更フォーム */
+.assignment-checklist-form {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+}
+
+/* チェック項目 */
+.assignment-checklist-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+    font-size: 0.85rem;
+}
+
+/* チェックボックス */
+.assignment-checklist-label input {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    flex-shrink: 0;
+    accent-color: #009900;
+}
+
+/* チェック済み */
+.checklist-checked {
+    color: #999;
+    text-decoration: none;
+}
+
+/* チェックリスト削除ボタン */
+.assignment-checklist-delete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #f0f0f0;
+    color: #777;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* チェックリスト追加ボタン */
+.assignment-checklist-open-btn {
+    display: block;
+    width: 100%;
+    height: 38px;
+    margin-top: 10px;
+    padding: 8px;
+    border: 1px solid #888;
+    border-radius: 5px;
+    background: #f5f5f5;
+    color: #555;
+    font-size: 0.8rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* チェックリスト追加フォーム */
+.assignment-checklist-add-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* チェックリスト入力欄 */
+.assignment-checklist-add-form input {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #333;
+    border-radius: 5px;
+    font-size: 0.8rem;
+}
+
+/* チェックリスト追加ボタン */
+.assignment-checklist-add-btn {
+    flex-shrink: 0;
+    width: 68px;
+    height: 36px;
+    border: 1px solid #888;
+    border-radius: 5px;
+    background: #f5f5f5;
+    color: #333;
+    font-size: 0.85rem;
+    cursor: pointer;
+}

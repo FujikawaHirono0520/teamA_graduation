@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -284,6 +283,85 @@
             <p class="assignment-empty" th:if="${#lists.isEmpty(assignment.userProgress)}">
                 担当ユーザーはいません
             </p>
+        </section>
+
+        <!-- コメント -->
+        <section class="assignment-detail-block">
+
+            <h3 class="assignment-block-title">コメント</h3>
+
+            <!-- コメント一覧 -->
+            <div th:each="comment : ${comments}"
+                 class="assignment-comment">
+
+                <div class="assignment-comment-info">
+                    <span th:text="${comment.userName}">ユーザー名</span>
+                    <span th:text="${comment.createdAtText}">投稿日時</span>
+                </div>
+
+                <div class="assignment-comment-body"
+                     th:text="${comment.body}">
+                    コメント内容
+                </div>
+
+            </div>
+
+            <!-- コメントがない場合 -->
+            <p th:if="${#lists.isEmpty(comments)}"
+               class="detail-note">
+            </p>
+
+            <!-- コメント入力 -->
+            <form th:action="@{/assignments/{id}/manage/comment(id=${assignment.id})}"
+                  method="post"
+                  class="assignment-comment-form">
+
+                <input type="text"
+                       name="body"
+                       placeholder="コメントを入力"
+                       maxlength="500"
+                       required>
+
+                <button type="submit" class="btn-blue">
+                    送信
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- チェックリスト -->
+        <section class="assignment-detail-block">
+
+            <h3 class="assignment-block-title">
+                チェックリスト
+                <span th:text="'(' + ${#lists.size(checklists)} + '件)'">(0件)</span>
+            </h3>
+
+            <!-- チェックリスト一覧 -->
+            <div th:each="checklist : ${checklists}"
+                 class="assignment-checklist-item">
+
+                <label class="assignment-checklist-label">
+
+                    <input type="checkbox"
+                           th:checked="${checklist.isChecked}"
+                           disabled>
+
+                    <span th:text="${checklist.title}"
+                          th:classappend="${checklist.isChecked} ? ' checklist-checked' : ''">
+                        チェック項目
+                    </span>
+
+                </label>
+
+            </div>
+
+            <!-- チェックリストがない場合 -->
+            <p th:if="${#lists.isEmpty(checklists)}"
+               class="detail-note">
+            </p>
+
         </section>
 
         <!-- 成功メッセージ -->
