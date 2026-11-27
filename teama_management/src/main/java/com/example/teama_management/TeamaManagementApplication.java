@@ -1,13 +1,13 @@
 package com.example.teama_management;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootTest
-class TeamaManagementApplicationTests {
+@SpringBootApplication
+public class TeamaManagementApplication {
 
-	@Test
-	void contextLoads() {
+	public static void main(String[] args) {
+		SpringApplication.run(TeamaManagementApplication.class, args);
 	}
 
 }
