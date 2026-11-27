@@ -323,6 +323,240 @@ public class AssignmentDetailRepository {
                 .get();
     }
 
+    // コメント一覧を取得する
+    public List<Map<String, Object>> findComments(
+            String assignmentId, String loginUid) throws Exception {
+
+        // 課題情報を取得する
+        DocumentSnapshot assignmentDoc = firestore.collection("assignments")
+                .document(assignmentId)
+                .get()
+                .get();
+
+        if (!assignmentDoc.exists()
+                || !hasAssignmentPermission(assignmentDoc, loginUid)) {
+            throw new IllegalArgumentException("表示する権限がありません");
+        }
+
+        // コメントを取得する
+        QuerySnapshot result = firestore.collection("comments")
+                .whereEqualTo("ownerType", "assignment")
+                .whereEqualTo("ownerId", assignmentId)
+                .get()
+                .get();
+
+        List<Map<String, Object>> comments = new ArrayList<>();
+
+        for (DocumentSnapshot commentDoc : result.getDocuments()) {
+
+            Map<String, Object> comment = new HashMap<>();
+
+            String userId = commentDoc.getString("userId");
+            String username = "ユーザー";
+
+            // 投稿者名を取得する
+            if (userId != null && !userId.isBlank()) {
+                DocumentSnapshot userDoc = firestore.collection("users")
+                        .document(userId)
+                        .get()
+                        .get();
+
+                if (userDoc.exists()) {
+                    username = valueOrDefault(
+                            userDoc.getString("username"), "ユーザー");
+                }
+            }
+
+            comment.put("commentId", commentDoc.getId());
+            comment.put("userName", username);
+            comment.put("body",
+                    valueOrDefault(commentDoc.getString("body"), ""));
+            comment.put("createdAtText",
+                    formatDate(commentDoc.getTimestamp("createdAt")));
+
+            comments.add(comment);
+        }
+
+        return comments;
+    }
+
+    // コメントを投稿する
+    public void addComment(
+            String assignmentId, String loginUid, String body) throws Exception {
+
+        // コメントが入力されているか確認する
+        if (body == null || body.isBlank()) {
+            throw new IllegalArgumentException("コメントを入力してください");
+        }
+
+        // 課題情報を取得する
+        DocumentSnapshot assignmentDoc = firestore.collection("assignments")
+                .document(assignmentId)
+                .get()
+                .get();
+
+        if (!assignmentDoc.exists()
+                || !hasAssignmentPermission(assignmentDoc, loginUid)) {
+            throw new IllegalArgumentException("投稿する権限がありません");
+        }
+
+        // コメント情報を登録する
+        Map<String, Object> commentData = new HashMap<>();
+        commentData.put("ownerType", "assignment");
+        commentData.put("ownerId", assignmentId);
+        commentData.put("userId", loginUid);
+        commentData.put("body", body.trim());
+        commentData.put("createdAt", Timestamp.now());
+
+        firestore.collection("comments")
+                .document()
+                .set(commentData)
+                .get();
+    }
+
+    // チェックリスト一覧を取得する
+    public List<Map<String, Object>> findChecklist(
+            String assignmentId, String loginUid) throws Exception {
+
+        // 課題情報を取得する
+        DocumentSnapshot assignmentDoc = firestore.collection("assignments")
+                .document(assignmentId)
+                .get()
+                .get();
+
+        if (!assignmentDoc.exists()
+                || !hasAssignmentPermission(assignmentDoc, loginUid)) {
+            throw new IllegalArgumentException("表示する権限がありません");
+        }
+
+        QuerySnapshot result = firestore.collection("checklist")
+                .whereEqualTo("assignmentId", assignmentId)
+                .get()
+                .get();
+
+        List<Map<String, Object>> checklists = new ArrayList<>();
+
+        for (DocumentSnapshot checklistDoc : result.getDocuments()) {
+
+            Map<String, Object> checklist = new HashMap<>();
+
+            checklist.put("checklistId", checklistDoc.getId());
+            checklist.put("title",
+                    valueOrDefault(checklistDoc.getString("title"), ""));
+            checklist.put("isChecked",
+                    Boolean.TRUE.equals(checklistDoc.getBoolean("isChecked")));
+
+            checklists.add(checklist);
+        }
+
+        return checklists;
+    }
+
+    // チェックリストを追加する
+    public void addChecklist(
+            String assignmentId, String loginUid, String title) throws Exception {
+
+        // チェックリスト名が入力されているか確認する
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("チェックリスト名を入力してください");
+        }
+
+        // 課題情報を取得する
+        DocumentSnapshot assignmentDoc = firestore.collection("assignments")
+                .document(assignmentId)
+                .get()
+                .get();
+
+        if (!assignmentDoc.exists()
+                || !hasAssignmentPermission(assignmentDoc, loginUid)) {
+            throw new IllegalArgumentException("追加する権限がありません");
+        }
+
+        // チェックリスト情報を登録する
+        Map<String, Object> checklistData = new HashMap<>();
+        checklistData.put("assignmentId", assignmentId);
+        checklistData.put("title", title.trim());
+        checklistData.put("isChecked", false);
+        checklistData.put("createdBy", loginUid);
+        checklistData.put("createdAt", Timestamp.now());
+        checklistData.put("updatedAt", Timestamp.now());
+
+        firestore.collection("checklist")
+                .document()
+                .set(checklistData)
+                .get();
+    }
+
+    // チェックリストの状態を変更する
+    public void updateChecklistStatus(
+            String assignmentId, String checklistId,
+            String loginUid, boolean isChecked) throws Exception {
+
+        // 課題情報を取得する
+        DocumentSnapshot assignmentDoc = firestore.collection("assignments")
+                .document(assignmentId)
+                .get()
+                .get();
+
+        if (!assignmentDoc.exists()
+                || !hasAssignmentPermission(assignmentDoc, loginUid)) {
+            throw new IllegalArgumentException("変更する権限がありません");
+        }
+
+        // チェックリスト情報を取得する
+        DocumentSnapshot checklistDoc = firestore.collection("checklist")
+                .document(checklistId)
+                .get()
+                .get();
+
+        if (!checklistDoc.exists()
+                || !assignmentId.equals(checklistDoc.getString("assignmentId"))) {
+            throw new IllegalArgumentException("チェックリストが見つかりません");
+        }
+
+        // チェック状態を更新する
+        firestore.collection("checklist")
+                .document(checklistId)
+                .update(
+                        "isChecked", isChecked,
+                        "updatedAt", Timestamp.now())
+                .get();
+    }
+
+    // チェックリストを削除する
+    public void deleteChecklist(
+            String assignmentId, String checklistId,
+            String loginUid) throws Exception {
+
+        // 課題情報を取得する
+        DocumentSnapshot assignmentDoc = firestore.collection("assignments")
+                .document(assignmentId)
+                .get()
+                .get();
+
+        if (!assignmentDoc.exists()
+                || !hasAssignmentPermission(assignmentDoc, loginUid)) {
+            throw new IllegalArgumentException("削除する権限がありません");
+        }
+
+        // チェックリスト情報を取得する
+        DocumentSnapshot checklistDoc = firestore.collection("checklist")
+                .document(checklistId)
+                .get()
+                .get();
+
+        if (!checklistDoc.exists()
+                || !assignmentId.equals(checklistDoc.getString("assignmentId"))) {
+            throw new IllegalArgumentException("チェックリストが見つかりません");
+        }
+
+        // チェックリストを削除する
+        firestore.collection("checklist")
+                .document(checklistId)
+                .delete()
+                .get();
+    }
+
     // 課題を表示・操作できるユーザーか確認する
     private boolean hasAssignmentPermission(
             DocumentSnapshot assignmentDoc, String loginUid) throws Exception {

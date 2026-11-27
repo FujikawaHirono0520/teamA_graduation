@@ -46,6 +46,16 @@ public class AssignmentDetailController {
                 return "redirect:/assignments";
             }
 
+            // コメント一覧を取得する
+            model.addAttribute("comments",
+                    assignmentDetailRepository.findComments(
+                            assignmentId, uid));
+
+            // チェックリスト一覧を取得する
+            model.addAttribute("checklists",
+                    assignmentDetailRepository.findChecklist(
+                            assignmentId, uid));
+
             model.addAttribute("name", session.getAttribute("loginName"));
             model.addAttribute("assignment", assignment);
 
@@ -117,6 +127,131 @@ public class AssignmentDetailController {
 
             redirectAttributes.addFlashAttribute(
                     "errorMessage", "課題の提出に失敗しました");
+        }
+
+        return "redirect:/assignments/" + assignmentId;
+    }
+
+    // コメントを投稿する
+    @PostMapping("/assignments/{id}/comment")
+    public String addComment(
+            @PathVariable("id") String assignmentId,
+            @RequestParam("body") String body,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String uid = (String) session.getAttribute("loginUid");
+
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            assignmentDetailRepository.addComment(
+                    assignmentId, uid, body);
+
+            redirectAttributes.addFlashAttribute(
+                    "snackbarMessage", "コメントを投稿しました");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "コメントの投稿に失敗しました");
+        }
+
+        return "redirect:/assignments/" + assignmentId;
+    }
+
+    // チェックリストを追加する
+    @PostMapping("/assignments/{id}/checklist")
+    public String addChecklist(
+            @PathVariable("id") String assignmentId,
+            @RequestParam("title") String title,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String uid = (String) session.getAttribute("loginUid");
+
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            assignmentDetailRepository.addChecklist(
+                    assignmentId, uid, title);
+
+            redirectAttributes.addFlashAttribute(
+                    "snackbarMessage", "チェックリストを追加しました");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "チェックリストの追加に失敗しました");
+        }
+
+        return "redirect:/assignments/" + assignmentId;
+    }
+
+    // チェックリストの状態を変更する
+    @PostMapping("/assignments/{id}/checklist/{checklistId}/status")
+    public String updateChecklistStatus(
+            @PathVariable("id") String assignmentId,
+            @PathVariable("checklistId") String checklistId,
+            @RequestParam(value = "isChecked", defaultValue = "false") boolean isChecked,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String uid = (String) session.getAttribute("loginUid");
+
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            assignmentDetailRepository.updateChecklistStatus(
+                    assignmentId, checklistId, uid, isChecked);
+
+            redirectAttributes.addFlashAttribute(
+                    "snackbarMessage", "チェック状態を変更しました");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "チェック状態の変更に失敗しました");
+        }
+
+        return "redirect:/assignments/" + assignmentId;
+    }
+
+    // チェックリストを削除する
+    @PostMapping("/assignments/{id}/checklist/{checklistId}/delete")
+    public String deleteChecklist(
+            @PathVariable("id") String assignmentId,
+            @PathVariable("checklistId") String checklistId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String uid = (String) session.getAttribute("loginUid");
+
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            assignmentDetailRepository.deleteChecklist(
+                    assignmentId, checklistId, uid);
+
+            redirectAttributes.addFlashAttribute(
+                    "snackbarMessage", "チェックリストを削除しました");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "チェックリストの削除に失敗しました");
         }
 
         return "redirect:/assignments/" + assignmentId;

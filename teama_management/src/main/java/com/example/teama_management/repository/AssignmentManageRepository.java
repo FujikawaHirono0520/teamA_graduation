@@ -1,4 +1,3 @@
-
 package com.example.teama_management.repository;
 
 import com.google.cloud.Timestamp;
@@ -388,5 +387,153 @@ public class AssignmentManageRepository {
 
     private String valueOrDefault(String value, String defaultValue) {
         return value == null || value.isBlank() ? defaultValue : value;
+    }
+
+// コメント一覧を取得する
+    public List<Map<String, Object>> findComments(
+            String assignmentId, String loginUid) throws Exception {
+
+        // 課題情報を取得する
+        DocumentSnapshot assignmentDoc = firestore.collection("assignments")
+                .document(assignmentId)
+                .get()
+                .get();
+
+        if (!assignmentDoc.exists()) {
+            throw new IllegalArgumentException("課題が見つかりません");
+        }
+
+        // リーダーか確認する
+        String teamId = assignmentDoc.getString("teamId");
+
+        if (teamId == null || !isLeader(teamId, loginUid)) {
+            throw new IllegalArgumentException("表示する権限がありません");
+        }
+
+        // コメントを取得する
+        QuerySnapshot result = firestore.collection("comments")
+                .whereEqualTo("ownerType", "assignment")
+                .whereEqualTo("ownerId", assignmentId)
+                .get()
+                .get();
+
+        List<Map<String, Object>> comments = new ArrayList<>();
+
+        for (DocumentSnapshot commentDoc : result.getDocuments()) {
+
+            Map<String, Object> comment = new HashMap<>();
+
+            String userId = commentDoc.getString("userId");
+            String username = "ユーザー";
+
+            // 投稿者名を取得する
+            if (userId != null && !userId.isBlank()) {
+                DocumentSnapshot userDoc = firestore.collection("users")
+                        .document(userId)
+                        .get()
+                        .get();
+
+                if (userDoc.exists()) {
+                    username = valueOrDefault(
+                            userDoc.getString("username"), "ユーザー");
+                }
+            }
+
+            comment.put("commentId", commentDoc.getId());
+            comment.put("userName", username);
+            comment.put("body",
+                    valueOrDefault(commentDoc.getString("body"), ""));
+            comment.put("createdAtText",
+                    formatDate(commentDoc.getTimestamp("createdAt")));
+
+            comments.add(comment);
+        }
+
+        return comments;
+    }
+
+    // コメントを投稿する
+    public void addComment(
+            String assignmentId, String loginUid, String body) throws Exception {
+
+        // コメントが入力されているか確認する
+        if (body == null || body.isBlank()) {
+            throw new IllegalArgumentException("コメントを入力してください");
+        }
+
+        // 課題情報を取得する
+        DocumentSnapshot assignmentDoc = firestore.collection("assignments")
+                .document(assignmentId)
+                .get()
+                .get();
+
+        if (!assignmentDoc.exists()) {
+            throw new IllegalArgumentException("課題が見つかりません");
+        }
+
+        // リーダーか確認する
+        String teamId = assignmentDoc.getString("teamId");
+
+        if (teamId == null || !isLeader(teamId, loginUid)) {
+            throw new IllegalArgumentException("投稿する権限がありません");
+        }
+
+        // コメント情報を登録する
+        Map<String, Object> commentData = new HashMap<>();
+        commentData.put("ownerType", "assignment");
+        commentData.put("ownerId", assignmentId);
+        commentData.put("userId", loginUid);
+        commentData.put("body", body.trim());
+        commentData.put("createdAt", Timestamp.now());
+
+        firestore.collection("comments")
+                .document()
+                .set(commentData)
+                .get();
+    }
+
+    // チェックリスト一覧を取得する
+    public List<Map<String, Object>> findChecklist(
+            String assignmentId, String loginUid) throws Exception {
+
+        // 課題情報を取得する
+        DocumentSnapshot assignmentDoc = firestore.collection("assignments")
+                .document(assignmentId)
+                .get()
+                .get();
+
+        if (!assignmentDoc.exists()) {
+            throw new IllegalArgumentException("課題が見つかりません");
+        }
+
+        // リーダーか確認する
+        String teamId = assignmentDoc.getString("teamId");
+
+        if (teamId == null || !isLeader(teamId, loginUid)) {
+            throw new IllegalArgumentException("表示する権限がありません");
+        }
+
+        // チェックリストを取得する
+        QuerySnapshot result = firestore.collection("checklist")
+                .whereEqualTo("assignmentId", assignmentId)
+                .get()
+                .get();
+
+        List<Map<String, Object>> checklists = new ArrayList<>();
+
+        for (DocumentSnapshot checklistDoc : result.getDocuments()) {
+
+            Map<String, Object> checklist = new HashMap<>();
+
+            checklist.put("checklistId", checklistDoc.getId());
+            checklist.put("title",
+                    valueOrDefault(checklistDoc.getString("title"), ""));
+            checklist.put("isChecked",
+                    Boolean.TRUE.equals(checklistDoc.getBoolean("isChecked")));
+
+            checklists.add(checklist);
+        }
+
+        return checklists;
     }
 }

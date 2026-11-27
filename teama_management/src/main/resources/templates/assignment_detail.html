@@ -73,7 +73,6 @@
                         着手中
                     </label>
                 </div>
-
             </form>
 
             <!-- 提出後 -->
@@ -82,10 +81,7 @@
                 class="assignment-status-row">
 
                 <span class="assignment-status-title">ステータス</span>
-
-                <span class="assignment-submitted-status">
-                    承認待ち
-                </span>
+                <span class="assignment-submitted-status">承認待ち</span>
             </div>
 
             <!-- 再提出 -->
@@ -94,7 +90,6 @@
                 class="assignment-status-row">
 
                 <span class="assignment-status-title">ステータス</span>
-
                 <span class="assignment-submitted-status"
                       style="background-color: red;">
                     再提出
@@ -108,10 +103,7 @@
                 class="assignment-status-row">
 
                 <span class="assignment-status-title">ステータス</span>
-
-                <span class="assignment-submitted-status">
-                    完了
-                </span>
+                <span class="assignment-submitted-status">完了</span>
             </div>
 
         </section>
@@ -148,6 +140,46 @@
             </p>
         </section>
 
+        <!-- コメント -->
+        <section class="assignment-detail-block">
+
+            <h3 class="assignment-block-title">コメント</h3>
+
+            <!-- コメント一覧 -->
+            <div th:each="comment : ${comments}"
+                 class="assignment-comment">
+
+                <div class="assignment-comment-info">
+                    <span th:text="${comment.userName}">ユーザー名</span>
+                    <span th:text="${comment.createdAtText}">投稿日時</span>
+                </div>
+
+                <div class="assignment-comment-body"
+                     th:text="${comment.body}">
+                    コメント内容
+                </div>
+
+            </div>
+
+            <!-- コメント入力 -->
+            <form th:action="@{/assignments/{id}/comment(id=${assignment.id})}"
+                  method="post"
+                  class="assignment-comment-form">
+
+                <input type="text"
+                       name="body"
+                       placeholder="コメントを入力"
+                       maxlength="500"
+                       required>
+
+                <button type="submit" class="btn-blue">
+                    送信
+                </button>
+
+            </form>
+
+        </section>
+
         <!-- 提出資料 -->
         <section class="detail-section">
             <h3>提出資料</h3>
@@ -163,6 +195,86 @@
                        or assignment.status == '再提出'}">
                 提出資料を修正して再提出してください。
             </p>
+        </section>
+
+        <!-- チェックリスト -->
+        <section class="assignment-detail-block">
+
+            <h3 class="assignment-block-title">
+                チェックリスト
+                <span th:text="'(' + ${#lists.size(checklists)} + '件)'">(0件)</span>
+            </h3>
+
+            <!-- チェックリスト一覧 -->
+            <div th:each="checklist : ${checklists}"
+                 class="assignment-checklist-item">
+
+                <!-- チェック状態変更 -->
+                <form th:action="@{/assignments/{id}/checklist/{checklistId}/status(
+                                id=${assignment.id},
+                                checklistId=${checklist.checklistId})}"
+                      method="post"
+                      class="assignment-checklist-form">
+
+                    <label class="assignment-checklist-label">
+
+                        <input type="checkbox"
+                               name="isChecked"
+                               value="true"
+                               th:checked="${checklist.isChecked}"
+                               onchange="this.form.submit()">
+
+                        <span th:text="${checklist.title}"
+                              th:classappend="${checklist.isChecked} ? ' checklist-checked' : ''">
+                            チェック項目
+                        </span>
+
+                    </label>
+
+                </form>
+
+                <!-- 削除 -->
+                <form th:action="@{/assignments/{id}/checklist/{checklistId}/delete(
+                                id=${assignment.id},
+                                checklistId=${checklist.checklistId})}"
+                      method="post">
+
+                    <button type="submit"
+                            class="assignment-checklist-delete">
+                        −
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- チェックリスト追加ボタン -->
+            <button type="button"
+                    id="checklistOpenButton"
+                    class="assignment-checklist-open-btn"
+                    onclick="showChecklistForm()">
+                ＋ チェックリスト追加
+            </button>
+
+            <!-- チェックリスト追加フォーム -->
+            <form th:action="@{/assignments/{id}/checklist(id=${assignment.id})}"
+                  method="post"
+                  id="checklistAddForm"
+                  class="assignment-checklist-add-form"
+                  style="display: none;">
+
+                <input type="text"
+                       name="title"
+                       placeholder="入力してください"
+                       maxlength="100"
+                       required>
+
+                <button type="submit" class="assignment-checklist-add-btn">
+                    追加
+                </button>
+
+            </form>
+
         </section>
 
         <!-- 提出 -->
@@ -253,6 +365,15 @@
         </dialog>
 
     </main>
+
+    <script>
+        // チェックリスト追加フォームを表示する
+        function showChecklistForm() {
+            document.getElementById("checklistOpenButton").style.display = "none";
+            document.getElementById("checklistAddForm").style.display = "flex";
+            document.querySelector("#checklistAddForm input").focus();
+        }
+    </script>
 
 </body>
 </html>

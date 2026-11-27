@@ -1,4 +1,3 @@
-
 package com.example.teama_management.controller;
 
 import com.example.teama_management.repository.AssignmentManageRepository;
@@ -46,8 +45,17 @@ public class AssignmentManageController {
                 return "redirect:/assignments";
             }
 
+            // コメント一覧を取得する
+            model.addAttribute("comments",
+                    assignmentManageRepository.findComments(assignmentId, uid));
+
+            // チェックリスト一覧を取得する
+            model.addAttribute("checklists",
+                    assignmentManageRepository.findChecklist(assignmentId, uid));
+
             model.addAttribute("name", session.getAttribute("loginName"));
             model.addAttribute("assignment", assignment);
+
             return "assignment_manage";
 
         } catch (Exception e) {
@@ -56,6 +64,36 @@ public class AssignmentManageController {
                     "errorMessage", "課題管理画面の表示に失敗しました");
             return "redirect:/assignments";
         }
+    }
+
+    // コメントを投稿する
+    @PostMapping("/assignments/{id}/manage/comment")
+    public String addComment(
+            @PathVariable("id") String assignmentId,
+            @RequestParam("body") String body,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String uid = (String) session.getAttribute("loginUid");
+
+        if (uid == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            assignmentManageRepository.addComment(
+                    assignmentId, uid, body);
+
+            redirectAttributes.addFlashAttribute(
+                    "snackbarMessage", "コメントを投稿しました");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "コメントの投稿に失敗しました");
+        }
+
+        return "redirect:/assignments/" + assignmentId + "/manage";
     }
 
     // ユーザーの提出を承認する
