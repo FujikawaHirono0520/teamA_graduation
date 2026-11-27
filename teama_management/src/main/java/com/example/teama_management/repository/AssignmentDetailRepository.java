@@ -130,25 +130,19 @@ public class AssignmentDetailRepository {
             resubmissionReason = valueOrDefault(
                     submissionDoc.getString("resubmissionReason"), "");
 
-            // 課題を提出したユーザーIDを取得する
-            String submittedBy = submissionDoc.getString("submittedBy");
+            // 課題を作成したユーザーIDを取得する
+            String createdBy = assignmentDoc.getString("createdBy");
 
-            // 個人課題で提出者IDがない場合はログインユーザーIDを使用する
-            if ((submittedBy == null || submittedBy.isBlank())
-                    && !"team".equals(targetType)) {
-                submittedBy = loginUid;
-            }
-
-            // 提出したユーザーの名前を取得する
-            if (submittedBy != null && !submittedBy.isBlank()) {
-                DocumentSnapshot submittedUserDoc = firestore.collection("users")
-                        .document(submittedBy)
+            // 課題を作成したユーザーの名前を取得する
+            if (createdBy != null && !createdBy.isBlank()) {
+                DocumentSnapshot createdUserDoc = firestore.collection("users")
+                        .document(createdBy)
                         .get()
                         .get();
 
-                if (submittedUserDoc.exists()) {
+                if (createdUserDoc.exists()) {
                     submittedByName = valueOrDefault(
-                            submittedUserDoc.getString("username"), "ユーザー名なし");
+                            createdUserDoc.getString("username"), "ユーザー名なし");
                 }
             }
         }
