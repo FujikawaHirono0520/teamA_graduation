@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>チームに参加 - 課題管理システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <!-- ヘッダー -->
+    <div th:replace="~{fragments/header :: header(true)}"></div>
+
+    <main class="container">
+
+        <div class="page-title-container">
+            <a th:href="${fromSettings} ? @{/settings} : @{/assignments}"
+            class="back-link">
+                ←
+            </a>
+            <h1>招待コードでチームに参加</h1>
+        </div>
+
+        <!-- 招待コード入力フォーム -->
+        <form th:action="@{/team_join_page}" method="post">
+
+            <!-- 遷移元の情報を引き継ぐ -->
+            <input type="hidden" name="fromSettings" th:value="${fromSettings}">
+
+            <div class="form-group">
+                <label for="inviteCode">招待コード</label>
+
+                <input
+                    type="text"
+                    id="inviteCode"
+                    name="inviteCode"
+                    th:value="${inviteCode}"
+                    placeholder="例）XY34-ZW56"
+                >
+            </div>
+
+            <!-- エラーメッセージ -->
+            <p class="error"
+            th:if="${errorMessage}"
+            th:text="'※' + ${errorMessage}">
+            </p>
+
+            <button type="submit" class="btn btn-green">
+                参加する
+            </button>
+
+        </form>
+
+    </main>
+
+</body>
+</html>
